@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.calendarviewsample.MainActivity">
-    <com.ycuwq.calendarview.WeekView
-        android:padding="16dp"
+    <com.ycuwq.calendarview.MonthView
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <TextView

@@ -1,14 +1,18 @@
 package com.ycuwq.calendarview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +37,12 @@ public class WeekView extends View {
     private int mItemWidth;
     private int mFirstItemDrawX, mFirstItemDrawY;
     private Rect mDrawnRect;
+    private int mTouchSlop;
+
+    private float mTouchDownX, mTouchDownY;
+
+    private int mSelectedItemPosition = -1;
+
     public WeekView(Context context) {
         super(context);
     }
@@ -47,19 +57,21 @@ public class WeekView extends View {
         }
         mDates = list;
         mDayItemAttrs = new DayItemAttrs();
+        mDayItemAttrs.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
         initPaint();
         computeTextSize();
         mDrawnRect = new Rect();
+        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
     public WeekView(Context context, @NonNull List<Date> dates, @NonNull DayItemAttrs dayItemAttrs) {
         super(context);
-
         mDates = dates;
         mDayItemAttrs = dayItemAttrs;
         initPaint();
         computeTextSize();
         mDrawnRect = new Rect();
+        mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
     public void setDateList(List<Date> dateList) {
@@ -75,6 +87,21 @@ public class WeekView extends View {
     private void computeTextSize() {
         mPaint.setTextSize(mDayItemAttrs.getTextSizeTop());
         mTextMaxWidth = (int) mPaint.measureText("00");
+    }
+
+    public void selectDate(Date date) {
+        int position = mDates.indexOf(date);
+        if (position >=0) {
+            mSelectedItemPosition = position;
+            postInvalidate();
+        } else {
+            cancelSelected();
+        }
+    }
+
+    public void cancelSelected() {
+        mSelectedItemPosition = -1;
+        postInvalidate();
     }
 
     /**
@@ -120,19 +147,32 @@ public class WeekView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        if (mSelectedItemPosition >= 0 && mSelectedItemPosition < WEEK_SIZE) {
+            Drawable clickBg = mDayItemAttrs.getSelectedBg();
+            clickBg.setBounds(mSelectedItemPosition * mItemWidth, 0,
+                    (mSelectedItemPosition + 1) * mItemWidth, mDrawnRect.bottom);
+            clickBg.draw(canvas);
+        }
         mPaint.setTextAlign(Paint.Align.CENTER);
         mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setColor(mDayItemAttrs.getTextColorTop());
         mPaint.setTextSize(mDayItemAttrs.getTextSizeTop());
         for (int i = 0; i < mDates.size(); i++) {
+            if (i == mSelectedItemPosition) {
+                mPaint.setColor(mDayItemAttrs.getClickTextColor());
+            } else {
+                mPaint.setColor(mDayItemAttrs.getTextColorTop());
+            }
             Date date = mDates.get(i);
             int itemDrawX = mFirstItemDrawX + i * mItemWidth;
-            canvas.drawText(date.getDay() + "", itemDrawX, mFirstItemDrawY * 0.8f, mPaint);
+            canvas.drawText(date.getDay() + "", itemDrawX, mFirstItemDrawY, mPaint);
         }
         if (mDayItemAttrs.isShowLunar() || mDayItemAttrs.isShowHoliday()) {
             mPaint.setColor(mDayItemAttrs.getTextColorBottom());
             mPaint.setTextSize(mDayItemAttrs.getTextSizeBottom());
             for (int i = 0; i < mDates.size(); i++) {
+                if (i == mSelectedItemPosition) {
+                    continue;
+                }
                 Date date = mDates.get(i);
                 String text = null;
                 if (mDayItemAttrs.isShowLunar()) {
@@ -148,9 +188,35 @@ public class WeekView extends View {
                 }
                 if (text != null) {
                     int itemDrawX = mFirstItemDrawX + i * mItemWidth;
-                    canvas.drawText(text + "", itemDrawX, mFirstItemDrawY * 1.2f, mPaint);
+                    canvas.drawText(text + "", itemDrawX, mFirstItemDrawY * 1.3f, mPaint);
                 }
             }
+
         }
     }
+
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mTouchDownX = event.getX();
+                mTouchDownY = event.getY();
+                return true;
+            case MotionEvent.ACTION_UP:
+                float disX = mTouchDownX - event.getX();
+                float disY = mTouchDownY - event.getY();
+                if (Math.abs(disX) < mTouchSlop && Math.abs(disY) < mTouchSlop) {
+                    if (mDrawnRect.contains((int) event.getX(), (int) event.getY())) {
+                        mSelectedItemPosition = (int) (event.getX() / mItemWidth);
+                        postInvalidate();
+                        return true;
+                    }
+                }
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
 }
