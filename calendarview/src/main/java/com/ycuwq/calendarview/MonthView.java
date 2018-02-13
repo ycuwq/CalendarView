@@ -6,6 +6,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.ycuwq.calendarview.utils.CalendarUtil;
+
+import java.util.List;
+
 /**
  * Created by ycuwq on 2018/2/12.
  */
@@ -15,6 +19,8 @@ class MonthView extends ViewGroup {
     protected static final int MAX_ROW = 6;       //最大显示的行数
 
     protected static final int COLUMN = 7;        //显示的列数
+
+    private DayItemAttrs mDayItemAttrs;
 
     public MonthView(Context context) {
         this(context, null);
@@ -26,9 +32,19 @@ class MonthView extends ViewGroup {
 
     public MonthView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        for (int i = 0; i < 5; i++) {
-            addView(new WeekView(context, null));
+        mDayItemAttrs = new DayItemAttrs();
+        mDayItemAttrs.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
+        setMonth(2018, 2);
+    }
+
+    public void setMonth(int year, int month) {
+        List<List<Date>> lists = CalendarUtil.getMonthOfWeekDate(year, month);
+        removeAllViews();
+        for (List<Date> weekDays : lists) {
+            WeekView weekView = new WeekView(getContext(), weekDays, mDayItemAttrs);
+            addView(weekView);
         }
+        requestLayout();
     }
 
     @Override

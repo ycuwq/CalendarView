@@ -188,7 +188,7 @@ public class WeekView extends View {
                 }
                 if (text != null) {
                     int itemDrawX = mFirstItemDrawX + i * mItemWidth;
-                    canvas.drawText(text + "", itemDrawX, mFirstItemDrawY * 1.3f, mPaint);
+                    canvas.drawText(text + "", itemDrawX, mFirstItemDrawY * 1.4f, mPaint);
                 }
             }
 
