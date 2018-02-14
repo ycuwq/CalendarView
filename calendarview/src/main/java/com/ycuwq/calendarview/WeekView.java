@@ -43,6 +43,8 @@ public class WeekView extends View {
 
     private int mSelectedItemPosition = -1;
 
+    private OnDaySelectedListener mOnDaySelectedListener;
+
     public WeekView(Context context) {
         super(context);
     }
@@ -99,10 +101,15 @@ public class WeekView extends View {
         }
     }
 
+    public void setOnDaySelectedListener(OnDaySelectedListener onDaySelectedListener) {
+        mOnDaySelectedListener = onDaySelectedListener;
+    }
+
     public void cancelSelected() {
         mSelectedItemPosition = -1;
         postInvalidate();
     }
+
 
     /**
      *  计算实际的大小
@@ -211,12 +218,18 @@ public class WeekView extends View {
                     if (mDrawnRect.contains((int) event.getX(), (int) event.getY())) {
                         mSelectedItemPosition = (int) (event.getX() / mItemWidth);
                         postInvalidate();
+                        if (mOnDaySelectedListener != null) {
+                            mOnDaySelectedListener.onDaySelected(mDates.get(mSelectedItemPosition));
+                        }
                         return true;
                     }
                 }
                 break;
         }
         return super.onTouchEvent(event);
+    }
+    public interface OnDaySelectedListener {
+        void onDaySelected(Date date);
     }
 
 }
