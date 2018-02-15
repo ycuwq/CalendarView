@@ -8,19 +8,22 @@ import android.view.ViewGroup;
 
 import com.ycuwq.calendarview.utils.CalendarUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * 一月的数据
  * Created by ycuwq on 2018/2/12.
  */
-
-class MonthView extends ViewGroup {
+class MonthView extends ViewGroup implements WeekView.OnDaySelectedListener{
 
     protected static final int MAX_ROW = 6;       //最大显示的行数
 
     protected static final int COLUMN = 7;        //显示的列数
 
     private DayItemAttrs mDayItemAttrs;
+
+    private List<WeekView> mWeekViews;
 
     public MonthView(Context context) {
         this(context, null);
@@ -34,15 +37,20 @@ class MonthView extends ViewGroup {
         super(context, attrs, defStyleAttr);
         mDayItemAttrs = new DayItemAttrs();
         mDayItemAttrs.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
+        mWeekViews = new ArrayList<>();
         setMonth(2018, 2);
     }
 
     public void setMonth(int year, int month) {
         List<List<Date>> lists = CalendarUtil.getMonthOfWeekDate(year, month);
         removeAllViews();
-        for (List<Date> weekDays : lists) {
-            WeekView weekView = new WeekView(getContext(), weekDays, mDayItemAttrs);
+        mWeekViews.clear();
+        for (int i = 0; i < lists.size(); i++) {
+            List<Date> weekDays = lists.get(i);
+            WeekView weekView = new WeekView(getContext(), weekDays, mDayItemAttrs, i);
+            weekView.setOnDaySelectedListener(this);
             addView(weekView);
+            mWeekViews.add(weekView);
         }
         requestLayout();
     }
@@ -88,4 +96,16 @@ class MonthView extends ViewGroup {
     }
 
 
+    @Override
+    public void onDaySelected(Date date, int position, int weekOrder) {
+        for (int i = 0; i < mWeekViews.size(); i++) {
+            WeekView weekView = mWeekViews.get(i);
+            if (i == weekOrder) {
+                weekView.selectedDate(position);
+            } else {
+                weekView.cancelSelected();
+            }
+        }
+
+    }
 }

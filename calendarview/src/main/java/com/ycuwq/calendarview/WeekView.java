@@ -39,6 +39,11 @@ public class WeekView extends View {
     private Rect mDrawnRect;
     private int mTouchSlop;
 
+    /**
+     * 在月中的第几周
+     */
+    private int mWeekOrder;
+
     private float mTouchDownX, mTouchDownY;
 
     private int mSelectedItemPosition = -1;
@@ -66,8 +71,9 @@ public class WeekView extends View {
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
-    public WeekView(Context context, @NonNull List<Date> dates, @NonNull DayItemAttrs dayItemAttrs) {
+    public WeekView(Context context, @NonNull List<Date> dates, @NonNull DayItemAttrs dayItemAttrs, int order) {
         super(context);
+        mWeekOrder = order;
         mDates = dates;
         mDayItemAttrs = dayItemAttrs;
         initPaint();
@@ -91,23 +97,33 @@ public class WeekView extends View {
         mTextMaxWidth = (int) mPaint.measureText("00");
     }
 
+    public void setOnDaySelectedListener(OnDaySelectedListener onDaySelectedListener) {
+        mOnDaySelectedListener = onDaySelectedListener;
+    }
+
     public void selectDate(Date date) {
         int position = mDates.indexOf(date);
         if (position >=0) {
-            mSelectedItemPosition = position;
-            postInvalidate();
+            selectedDate(position);
         } else {
             cancelSelected();
         }
     }
 
-    public void setOnDaySelectedListener(OnDaySelectedListener onDaySelectedListener) {
-        mOnDaySelectedListener = onDaySelectedListener;
+    public void selectedDate(int position) {
+        if (position > 0 && position < mDates.size()) {
+            mSelectedItemPosition = position;
+            postInvalidate();
+        }
     }
 
+
+
     public void cancelSelected() {
-        mSelectedItemPosition = -1;
-        postInvalidate();
+        if (mSelectedItemPosition > -1) {
+            mSelectedItemPosition = -1;
+            postInvalidate();
+        }
     }
 
 
@@ -216,10 +232,10 @@ public class WeekView extends View {
                 float disY = mTouchDownY - event.getY();
                 if (Math.abs(disX) < mTouchSlop && Math.abs(disY) < mTouchSlop) {
                     if (mDrawnRect.contains((int) event.getX(), (int) event.getY())) {
-                        mSelectedItemPosition = (int) (event.getX() / mItemWidth);
-                        postInvalidate();
+                        int position = (int) (event.getX() / mItemWidth);
+//                        postInvalidate();
                         if (mOnDaySelectedListener != null) {
-                            mOnDaySelectedListener.onDaySelected(mDates.get(mSelectedItemPosition));
+                            mOnDaySelectedListener.onDaySelected(mDates.get(position), position, mWeekOrder);
                         }
                         return true;
                     }
@@ -229,7 +245,7 @@ public class WeekView extends View {
         return super.onTouchEvent(event);
     }
     public interface OnDaySelectedListener {
-        void onDaySelected(Date date);
+        void onDaySelected(Date date, int position, int weekOrder);
     }
 
 }
