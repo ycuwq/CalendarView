@@ -180,12 +180,16 @@ public class WeekView extends View {
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setTextSize(mDayItemAttrs.getTextSizeTop());
         for (int i = 0; i < mDates.size(); i++) {
-            if (i == mSelectedItemPosition) {
-                mPaint.setColor(mDayItemAttrs.getClickTextColor());
-            } else {
-                mPaint.setColor(mDayItemAttrs.getTextColorTop());
-            }
             Date date = mDates.get(i);
+            if (i == mSelectedItemPosition) {
+                //设置点击样式
+                mPaint.setColor(mDayItemAttrs.getClickTextColor());
+            } else if (date.getType() == Date.TYPE_THIS_MONTH){
+                mPaint.setColor(mDayItemAttrs.getTextColorTop());
+            } else {
+                //将非当月的Item样式为Bottom的样式，与当月的区分
+                mPaint.setColor(mDayItemAttrs.getTextColorBottom());
+            }
             int itemDrawX = mFirstItemDrawX + i * mItemWidth;
             canvas.drawText(date.getDay() + "", itemDrawX, mFirstItemDrawY, mPaint);
         }

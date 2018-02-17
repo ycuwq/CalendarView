@@ -1,8 +1,6 @@
 package com.ycuwq.calendarview;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -26,20 +24,21 @@ class MonthView extends ViewGroup implements WeekView.OnDaySelectedListener{
     private List<WeekView> mWeekViews;
 
     public MonthView(Context context) {
-        this(context, null);
-    }
-
-    public MonthView(Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public MonthView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(context);
         mDayItemAttrs = new DayItemAttrs();
         mDayItemAttrs.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
         mWeekViews = new ArrayList<>();
         setMonth(2018, 2);
     }
+
+//    public MonthView(Context context, @Nullable AttributeSet attrs) {
+//        this(context, attrs, 0);
+//    }
+//
+//    public MonthView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+//        super(context, attrs, defStyleAttr);
+//
+//    }
 
     public void setMonth(int year, int month) {
         List<List<Date>> lists = CalendarUtil.getMonthOfWeekDate(year, month);

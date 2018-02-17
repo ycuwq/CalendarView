@@ -28,11 +28,11 @@ public class CalendarUtil {
 
 
     public static List<List<Date>> getMonthOfWeekDate(int year, int month) {
-        LocalDate localDate = new LocalDate(year, month, 1).withDayOfWeek(1);
+        LocalDate localDate = new LocalDate(year, month, 1);
         List<List<Date>> weeks = new ArrayList<>();
         while (localDate.getMonthOfYear() <= month) {
             weeks.add(getWeekDate(localDate.getYear(), localDate.getMonthOfYear(), localDate.getDayOfMonth()));
-            localDate = localDate.plusWeeks(1);
+            localDate = localDate.plusWeeks(1).withDayOfWeek(1);
         }
         return weeks;
     }
