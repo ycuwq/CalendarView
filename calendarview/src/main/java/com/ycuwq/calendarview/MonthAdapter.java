@@ -3,28 +3,52 @@ package com.ycuwq.calendarview;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.ycuwq.calendarview.utils.CalendarUtil;
+
+import java.util.LinkedList;
 
 import static android.content.ContentValues.TAG;
 
 /**
  * Created by ycuwq on 2018/2/17.
  */
+public class MonthAdapter extends PagerAdapter {
 
-public class MonthAdapter extends PagerAdapter{
+    private LinkedList<MonthView> mCache = new LinkedList<>();
+    private SparseArray<MonthView> mViews = new SparseArray<>();
+
+    private int mCount;
+
+    private int mStartYear, mStartMonth;
+    private DayItemAttrs mDayItemAttrs;
+
+    public MonthAdapter(int count, int startYear, int startMonth, DayItemAttrs dayItemAttrs) {
+        mCount = count;
+        mStartYear = startYear;
+        mStartMonth = startMonth;
+        mDayItemAttrs = dayItemAttrs;
+    }
+
     @Override
     public int getCount() {
-        return 3;
+        return mCount;
     }
 
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
-        Log.d(TAG, "instantiateItem: ");
         MonthView monthView;
-        monthView = new MonthView(container.getContext());
-        monthView.setMonth(2018, 2);
+        if (mCache.isEmpty()) {
+            monthView = new MonthView(container.getContext(), mDayItemAttrs);
+        } else {
+            monthView = mCache.removeFirst();
+        }
+        int[] date = CalendarUtil.positionToDate(position, mStartYear, mStartMonth);
+        monthView.setMonth(date[0], date[1]);
         container.addView(monthView);
         return monthView;
     }
@@ -32,10 +56,12 @@ public class MonthAdapter extends PagerAdapter{
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         container.removeView((View) object);
+        mCache.addLast((MonthView) object);
+        mViews.remove(position);
     }
 
     @Override
-    public boolean isViewFromObject(View view, Object object) {
+    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return view == object;
     }
 }

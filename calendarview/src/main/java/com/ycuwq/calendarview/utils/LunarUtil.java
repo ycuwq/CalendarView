@@ -49,6 +49,7 @@ public class LunarUtil {
     private final static int MAX_YEAR = 2049;
     // 阳历日期计算起点
     private final static String START_DATE = "19000130";
+    private final static SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd", Locale.CHINA);
 
     /**
      * 阳历转阴历
@@ -79,8 +80,6 @@ public class LunarUtil {
         } else {
             solarDate = solarDate + day;
         }
-
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd", Locale.CHINA);
         Date myDate = null;
         Date startDate = null;
         try {
@@ -105,7 +104,7 @@ public class LunarUtil {
         int leapMonth = getLeapMonth(lunarYear);//计算该年闰哪个月
         //设定当年是否有闰月
         boolean isLeapYear;
-	    isLeapYear = leapMonth > 0;
+        isLeapYear = leapMonth > 0;
 
         for (i = 1; i <= 12; i++) {
             if (i == leapMonth + 1 && isLeapYear) {

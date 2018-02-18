@@ -111,7 +111,7 @@ public class WeekView extends View {
     }
 
     public void selectedDate(int position) {
-        if (position > 0 && position < mDates.size()) {
+        if (position >= 0 && position < mDates.size()) {
             mSelectedItemPosition = position;
             postInvalidate();
         }
@@ -248,7 +248,7 @@ public class WeekView extends View {
         }
         return super.onTouchEvent(event);
     }
-    public interface OnDaySelectedListener {
+    interface OnDaySelectedListener {
         void onDaySelected(Date date, int position, int weekOrder);
     }
 

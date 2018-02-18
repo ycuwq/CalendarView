@@ -1,5 +1,6 @@
 package com.ycuwq.calendarview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import java.util.List;
  * 一月的数据
  * Created by ycuwq on 2018/2/12.
  */
+@SuppressLint("ViewConstructor")
 class MonthView extends ViewGroup implements WeekView.OnDaySelectedListener{
 
     protected static final int MAX_ROW = 6;       //最大显示的行数
@@ -23,22 +25,13 @@ class MonthView extends ViewGroup implements WeekView.OnDaySelectedListener{
 
     private List<WeekView> mWeekViews;
 
-    public MonthView(Context context) {
-        super(context);
-        mDayItemAttrs = new DayItemAttrs();
-        mDayItemAttrs.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
-        mWeekViews = new ArrayList<>();
-        setMonth(2018, 2);
-    }
+    private OnDaySelectedListener mOnDaySelectedListener;
 
-//    public MonthView(Context context, @Nullable AttributeSet attrs) {
-//        this(context, attrs, 0);
-//    }
-//
-//    public MonthView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-//        super(context, attrs, defStyleAttr);
-//
-//    }
+    public MonthView(Context context, DayItemAttrs dayItemAttrs) {
+        super(context);
+        mDayItemAttrs = dayItemAttrs;
+        mWeekViews = new ArrayList<>();
+    }
 
     public void setMonth(int year, int month) {
         List<List<Date>> lists = CalendarUtil.getMonthOfWeekDate(year, month);
@@ -106,5 +99,17 @@ class MonthView extends ViewGroup implements WeekView.OnDaySelectedListener{
             }
         }
 
+        if (mOnDaySelectedListener != null) {
+            mOnDaySelectedListener.onDaySelected(date);
+        }
     }
+
+    public void setOnDaySelectedListener(OnDaySelectedListener onDaySelectedListener) {
+        mOnDaySelectedListener = onDaySelectedListener;
+    }
+
+    interface OnDaySelectedListener {
+        void onDaySelected(Date date);
+    }
+
 }

@@ -15,22 +15,22 @@ public class CalendarUtilTest {
         List<List<Date>> lists = CalendarUtil.getMonthOfWeekDate(2018, 2);
         assertEquals(5, lists.size());
 
-        List<List<Date>> lists2 = CalendarUtil.getMonthOfWeekDate(2018, 1);
+        List<List<Date>> lists2 = CalendarUtil.getMonthOfWeekDate(2017, 12);
         assertEquals(5, lists2.size());
 
-        List<List<Date>> lists3 = CalendarUtil.getMonthOfWeekDate(2018, 4);
+        List<List<Date>> lists3 = CalendarUtil.getMonthOfWeekDate(2018, 1);
         assertEquals(6, lists3.size());
     }
 
     @Test
     public void getWeekDate() throws Exception {
-        List<Date> dates = CalendarUtil.getWeekDate(2018, 2, 1);
+        List<Date> dates = CalendarUtil.getWeekDates(2018, 2, 1);
         assertEquals(29, dates.get(0).getDay());
         assertEquals(4, dates.get(6).getDay());
-        List<Date> dates2 = CalendarUtil.getWeekDate(2018, 2, 13);
+        List<Date> dates2 = CalendarUtil.getWeekDates(2018, 2, 13);
         assertEquals(12, dates2.get(0).getDay());
         assertEquals(18, dates2.get(6).getDay());
-        List<Date> dates3 = CalendarUtil.getWeekDate(2018, 2, 28);
+        List<Date> dates3 = CalendarUtil.getWeekDates(2018, 2, 28);
         assertEquals(26, dates3.get(0).getDay());
         assertEquals(4, dates3.get(6).getDay());
     }
