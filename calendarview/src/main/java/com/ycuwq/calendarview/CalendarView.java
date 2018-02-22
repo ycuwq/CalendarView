@@ -18,7 +18,7 @@ public class CalendarView extends LinearLayout {
 
     private MonthPager mMonthPager;
     private MonthAdapter mMonthAdapter;
-    private DayItemAttrs mDayItemAttrs;
+    private CalendarViewDelegate mCalendarViewDelegate;
 
     public CalendarView(Context context) {
         this(context, null);
@@ -31,8 +31,8 @@ public class CalendarView extends LinearLayout {
     public CalendarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         setOrientation(VERTICAL);
-        mDayItemAttrs = new DayItemAttrs();
-        mDayItemAttrs.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
+        mCalendarViewDelegate = new CalendarViewDelegate();
+        mCalendarViewDelegate.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
         initChild();
         setDateToCurrent();
     }
@@ -45,7 +45,7 @@ public class CalendarView extends LinearLayout {
     }
 
     private void initChild() {
-        mMonthAdapter = new MonthAdapter(2000, 1980, 1, mDayItemAttrs);
+        mMonthAdapter = new MonthAdapter(2000, 1980, 1, mCalendarViewDelegate);
         mMonthPager = new MonthPager(getContext());
         mMonthPager.setOffscreenPageLimit(1);
         mMonthPager.setAdapter(mMonthAdapter);

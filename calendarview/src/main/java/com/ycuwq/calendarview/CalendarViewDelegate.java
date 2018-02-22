@@ -8,7 +8,7 @@ import android.support.annotation.ColorInt;
  * 包装的MonthItemView所需要的属性
  * Created by yangchen on 2017/6/21.
  */
-class DayItemAttrs {
+class CalendarViewDelegate {
 
 	private boolean mShowLunar = true;          //是否显示农历
 	private boolean mShowHoliday = true;        //是否显示节假日

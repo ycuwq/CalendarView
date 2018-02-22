@@ -21,15 +21,15 @@ class MonthView extends ViewGroup implements WeekView.OnDaySelectedListener{
 
     protected static final int COLUMN = 7;        //显示的列数
 
-    private DayItemAttrs mDayItemAttrs;
+    private CalendarViewDelegate mCalendarViewDelegate;
 
     private List<WeekView> mWeekViews;
 
     private OnDaySelectedListener mOnDaySelectedListener;
 
-    public MonthView(Context context, DayItemAttrs dayItemAttrs) {
+    public MonthView(Context context, CalendarViewDelegate calendarViewDelegate) {
         super(context);
-        mDayItemAttrs = dayItemAttrs;
+        mCalendarViewDelegate = calendarViewDelegate;
         mWeekViews = new ArrayList<>();
     }
 
@@ -39,7 +39,7 @@ class MonthView extends ViewGroup implements WeekView.OnDaySelectedListener{
         mWeekViews.clear();
         for (int i = 0; i < lists.size(); i++) {
             List<Date> weekDays = lists.get(i);
-            WeekView weekView = new WeekView(getContext(), weekDays, mDayItemAttrs, i);
+            WeekView weekView = new WeekView(getContext(), weekDays, mCalendarViewDelegate, i);
             weekView.setOnDaySelectedListener(this);
             addView(weekView);
             mWeekViews.add(weekView);

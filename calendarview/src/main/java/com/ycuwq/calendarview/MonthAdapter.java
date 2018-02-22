@@ -2,7 +2,6 @@ package com.ycuwq.calendarview;
 
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +9,6 @@ import android.view.ViewGroup;
 import com.ycuwq.calendarview.utils.CalendarUtil;
 
 import java.util.LinkedList;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by ycuwq on 2018/2/17.
@@ -24,13 +21,13 @@ public class MonthAdapter extends PagerAdapter {
     private int mCount;
 
     private int mStartYear, mStartMonth;
-    private DayItemAttrs mDayItemAttrs;
+    private CalendarViewDelegate mCalendarViewDelegate;
 
-    public MonthAdapter(int count, int startYear, int startMonth, DayItemAttrs dayItemAttrs) {
+    public MonthAdapter(int count, int startYear, int startMonth, CalendarViewDelegate calendarViewDelegate) {
         mCount = count;
         mStartYear = startYear;
         mStartMonth = startMonth;
-        mDayItemAttrs = dayItemAttrs;
+        mCalendarViewDelegate = calendarViewDelegate;
     }
 
     @Override
@@ -43,7 +40,7 @@ public class MonthAdapter extends PagerAdapter {
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
         MonthView monthView;
         if (mCache.isEmpty()) {
-            monthView = new MonthView(container.getContext(), mDayItemAttrs);
+            monthView = new MonthView(container.getContext(), mCalendarViewDelegate);
         } else {
             monthView = mCache.removeFirst();
         }

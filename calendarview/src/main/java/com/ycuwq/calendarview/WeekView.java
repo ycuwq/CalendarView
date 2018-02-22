@@ -31,7 +31,7 @@ public class WeekView extends View {
 
     private List<Date> mDates;
 
-    private DayItemAttrs mDayItemAttrs;
+    private CalendarViewDelegate mCalendarViewDelegate;
 
     private int mTextMaxWidth, mTextMaxHeight;
     private int mItemWidth;
@@ -63,19 +63,19 @@ public class WeekView extends View {
             list.add(date);
         }
         mDates = list;
-        mDayItemAttrs = new DayItemAttrs();
-        mDayItemAttrs.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
+        mCalendarViewDelegate = new CalendarViewDelegate();
+        mCalendarViewDelegate.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
         initPaint();
         computeTextSize();
         mDrawnRect = new Rect();
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
 
-    public WeekView(Context context, @NonNull List<Date> dates, @NonNull DayItemAttrs dayItemAttrs, int order) {
+    public WeekView(Context context, @NonNull List<Date> dates, @NonNull CalendarViewDelegate calendarViewDelegate, int order) {
         super(context);
         mWeekOrder = order;
         mDates = dates;
-        mDayItemAttrs = dayItemAttrs;
+        mCalendarViewDelegate = calendarViewDelegate;
         initPaint();
         computeTextSize();
         mDrawnRect = new Rect();
@@ -93,7 +93,7 @@ public class WeekView extends View {
     }
 
     private void computeTextSize() {
-        mPaint.setTextSize(mDayItemAttrs.getTextSizeTop());
+        mPaint.setTextSize(mCalendarViewDelegate.getTextSizeTop());
         mTextMaxWidth = (int) mPaint.measureText("00");
     }
 
@@ -117,15 +117,12 @@ public class WeekView extends View {
         }
     }
 
-
-
     public void cancelSelected() {
         if (mSelectedItemPosition > -1) {
             mSelectedItemPosition = -1;
             postInvalidate();
         }
     }
-
 
     /**
      *  计算实际的大小
@@ -171,41 +168,41 @@ public class WeekView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         if (mSelectedItemPosition >= 0 && mSelectedItemPosition < WEEK_SIZE) {
-            Drawable clickBg = mDayItemAttrs.getSelectedBg();
+            Drawable clickBg = mCalendarViewDelegate.getSelectedBg();
             clickBg.setBounds(mSelectedItemPosition * mItemWidth, 0,
                     (mSelectedItemPosition + 1) * mItemWidth, mDrawnRect.bottom);
             clickBg.draw(canvas);
         }
         mPaint.setTextAlign(Paint.Align.CENTER);
         mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setTextSize(mDayItemAttrs.getTextSizeTop());
+        mPaint.setTextSize(mCalendarViewDelegate.getTextSizeTop());
         for (int i = 0; i < mDates.size(); i++) {
             Date date = mDates.get(i);
             if (i == mSelectedItemPosition) {
                 //设置点击样式
-                mPaint.setColor(mDayItemAttrs.getClickTextColor());
+                mPaint.setColor(mCalendarViewDelegate.getClickTextColor());
             } else if (date.getType() == Date.TYPE_THIS_MONTH){
-                mPaint.setColor(mDayItemAttrs.getTextColorTop());
+                mPaint.setColor(mCalendarViewDelegate.getTextColorTop());
             } else {
                 //将非当月的Item样式为Bottom的样式，与当月的区分
-                mPaint.setColor(mDayItemAttrs.getTextColorBottom());
+                mPaint.setColor(mCalendarViewDelegate.getTextColorBottom());
             }
             int itemDrawX = mFirstItemDrawX + i * mItemWidth;
             canvas.drawText(date.getDay() + "", itemDrawX, mFirstItemDrawY, mPaint);
         }
-        if (mDayItemAttrs.isShowLunar() || mDayItemAttrs.isShowHoliday()) {
-            mPaint.setColor(mDayItemAttrs.getTextColorBottom());
-            mPaint.setTextSize(mDayItemAttrs.getTextSizeBottom());
+        if (mCalendarViewDelegate.isShowLunar() || mCalendarViewDelegate.isShowHoliday()) {
+            mPaint.setColor(mCalendarViewDelegate.getTextColorBottom());
+            mPaint.setTextSize(mCalendarViewDelegate.getTextSizeBottom());
             for (int i = 0; i < mDates.size(); i++) {
                 if (i == mSelectedItemPosition) {
                     continue;
                 }
                 Date date = mDates.get(i);
                 String text = null;
-                if (mDayItemAttrs.isShowLunar()) {
+                if (mCalendarViewDelegate.isShowLunar()) {
                     text = date.getLunarDay();
                 }
-                if (mDayItemAttrs.isShowHoliday()) {
+                if (mCalendarViewDelegate.isShowHoliday()) {
                     if (!TextUtils.isEmpty(date.getLunarHoliday())) {
                         text = date.getLunarHoliday();
                     }
