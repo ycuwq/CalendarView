@@ -1,5 +1,7 @@
 package com.ycuwq.calendarview.utils;
 
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -60,6 +62,7 @@ public class LunarUtil {
      * @return  String[0] :月份， String[1]: 日
      */
     public static String[] solarToLunar(int year, int month, int day) {
+
         int i;
         int temp = 0;
         int lunarYear;
@@ -100,7 +103,6 @@ public class LunarUtil {
             }
         }
         lunarYear = i;
-
         int leapMonth = getLeapMonth(lunarYear);//计算该年闰哪个月
         //设定当年是否有闰月
         boolean isLeapYear;

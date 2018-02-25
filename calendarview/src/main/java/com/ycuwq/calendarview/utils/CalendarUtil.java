@@ -3,6 +3,7 @@ package com.ycuwq.calendarview.utils;
 import com.ycuwq.calendarview.Date;
 
 import org.joda.time.LocalDate;
+import org.joda.time.Weeks;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -107,6 +108,36 @@ public class CalendarUtil {
         int month = month2 - month1;
 
         return year * 12 + month;
+    }
+
+    /**
+     * 获取两个日期之间的周数差
+     * @param startYear     开始年
+     * @param startMonth    开始月
+     * @return  周数差。
+     */
+    public static int getWeekPosition(int startYear, int startMonth, int startDay, int year, int month, int day) {
+        LocalDate start = new LocalDate(startYear, startMonth, startDay);
+        LocalDate end = new LocalDate(year, month, day);
+        return Weeks.weeksBetween(start, end).getWeeks();
+    }
+
+    /**
+     * 获取距离开始日期 + 周数的一周的日期。
+     * @param startYear     开始年
+     * @param startMonth    开始月
+     * @param positionWeek  偏移周数
+     * @return  返回一周的日期，第一天是周日
+     */
+    public static List<Date> getWeekDaysForPosition(int startYear, int startMonth, int startDay, int positionWeek) {
+        ArrayList<Date> dates = new ArrayList<>();
+
+        LocalDate localDate = new LocalDate(startYear, startMonth, startDay).plusWeeks(positionWeek);
+
+        for (int i = 1; i <= 7; i++) {
+            dates.add(getDate(localDate.withDayOfWeek(i), Date.TYPE_THIS_MONTH));
+        }
+        return dates;
     }
 
     public static LocalDate getCurrentDate() {

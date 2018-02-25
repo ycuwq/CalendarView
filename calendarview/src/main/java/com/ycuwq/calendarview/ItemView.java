@@ -18,7 +18,7 @@ import java.util.List;
  * MonthView和WeekView的基类
  * Created by ycuwq on 2018/2/23.
  */
-abstract class BaseView extends View {
+class ItemView extends View {
 
     protected static final int MAX_ROW = 6;       //最大显示的行数
 
@@ -50,7 +50,7 @@ abstract class BaseView extends View {
 
     private OnDaySelectedListener mOnDaySelectedListener;
 
-    public BaseView(Context context, @NonNull CalendarViewDelegate calendarViewDelegate) {
+    public ItemView(Context context, @NonNull CalendarViewDelegate calendarViewDelegate) {
         super(context);
         mCalendarViewDelegate = calendarViewDelegate;
         initPaint();

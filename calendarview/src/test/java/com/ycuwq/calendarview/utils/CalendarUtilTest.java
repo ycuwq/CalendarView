@@ -11,6 +11,49 @@ import static org.junit.Assert.assertEquals;
  */
 public class CalendarUtilTest {
     @Test
+    public void getDate() throws Exception {
+    }
+
+    @Test
+    public void getMonthOfWeekDate1() throws Exception {
+    }
+
+    @Test
+    public void getMonthOfWeekDate2() throws Exception {
+    }
+
+    @Test
+    public void getWeekDates() throws Exception {
+    }
+
+    @Test
+    public void getDayForWeek() throws Exception {
+    }
+
+    @Test
+    public void positionToDate() throws Exception {
+    }
+
+    @Test
+    public void getMonthPosition() throws Exception {
+    }
+
+    @Test
+    public void getWeekPosition() throws Exception {
+        int weekPosition = CalendarUtil.getWeekPosition(2017, 7, 14, 2017, 8, 16);
+        assertEquals(4, weekPosition);
+        weekPosition = CalendarUtil.getWeekPosition(1980, 1, 1, 2018, 2, 25);
+        assertEquals(1990, weekPosition);
+    }
+
+    @Test
+    public void getWeekDaysForPosition() throws Exception {
+        int weekPosition = CalendarUtil.getWeekPosition(1980, 1, 1, 2018, 2, 25);
+        List<Date> dates = CalendarUtil.getWeekDaysForPosition(1980, 1, 1, weekPosition);
+        assertEquals(dates.get(6).toString(), "2018-02-25");
+    }
+
+    @Test
     public void getMonthOfWeekDate() throws Exception {
         List<List<Date>> lists = CalendarUtil.getMonthOfWeekDate(2018, 2);
         assertEquals(5, lists.size());
