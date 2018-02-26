@@ -1,5 +1,6 @@
 package com.ycuwq.calendarview;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,6 +15,7 @@ import com.ycuwq.calendarview.utils.DensityUtil;
  * 自定义显示CalendarView上方的日期提示
  * Created by 杨晨 on 2017/5/15.
  */
+@SuppressLint("ViewConstructor")
 @SuppressWarnings("unused")
 public class WeekInfoView extends View {
 	private Context mContext;

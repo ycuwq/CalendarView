@@ -18,25 +18,33 @@ import java.util.List;
  * MonthView和WeekView的基类
  * Created by ycuwq on 2018/2/23.
  */
+@SuppressLint("ViewConstructor")
 class ItemView extends View {
 
     protected static final int MAX_ROW = 6;       //最大显示的行数
 
     protected static final int MAX_COLUMN = 7;        //显示的列数
 
-    private final String TAG = getClass().getSimpleName();
-
-
     private Paint mPaint;
 
     private List<Date> mDates;
 
     private CalendarViewDelegate mCalendarViewDelegate;
-    //显示的行数
+
+    /**
+     * 在设置Data后显示的行数
+     */
     private int mRow;
+
     private int mItemWidth, mItemHeight;
+
     private int mFirstItemDrawX, mFirstItemDrawY;
+
+    /**
+     * 该控件绘制的大小
+     */
     private Rect mDrawnRect;
+
     private int mTouchSlop;
 
     /**
@@ -59,6 +67,7 @@ class ItemView extends View {
     }
 
     public void setDateList(List<Date> dates) {
+        //强制要求日期必须是MAX_COLUMN的整数
         if (dates == null || dates.size() == 0 || dates.size() % MAX_COLUMN != 0) {
             throw new IllegalArgumentException("dates must be divisible by" + MAX_COLUMN);
         }

@@ -1,7 +1,5 @@
 package com.ycuwq.calendarview;
 
-import android.util.Log;
-
 import com.ycuwq.calendarview.utils.CalendarUtil;
 
 import java.util.List;
@@ -16,8 +14,6 @@ public class WeekAdapter extends BaseAdapter {
 
     @Override
     public List<Date> getDateList(int startYear, int startMonth, int position) {
-        List<Date> dates = CalendarUtil.getWeekDaysForPosition(startYear, startMonth, 1, position);
-        Log.d("WeekAdapter", "getDateList: " + dates.get(0).toString());
-        return dates;
+        return CalendarUtil.getWeekDaysForPosition(startYear, startMonth, 1, position);
     }
 }

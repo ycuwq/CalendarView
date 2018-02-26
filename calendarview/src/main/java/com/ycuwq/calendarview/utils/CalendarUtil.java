@@ -117,8 +117,8 @@ public class CalendarUtil {
      * @return  周数差。
      */
     public static int getWeekPosition(int startYear, int startMonth, int startDay, int year, int month, int day) {
-        LocalDate start = new LocalDate(startYear, startMonth, startDay);
-        LocalDate end = new LocalDate(year, month, day);
+        LocalDate start = new LocalDate(startYear, startMonth, startDay).withDayOfWeek(1);
+        LocalDate end = new LocalDate(year, month, day).withDayOfWeek(1);
         return Weeks.weeksBetween(start, end).getWeeks();
     }
 

@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
+ * MonthAdapter和WeekAdapter的基类。
  * Created by ycuwq on 2018/2/25.
  */
 abstract class BaseAdapter extends PagerAdapter {

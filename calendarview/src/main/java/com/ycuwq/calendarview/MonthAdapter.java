@@ -9,7 +9,6 @@ import java.util.List;
  */
 public class MonthAdapter extends BaseAdapter {
 
-
     public MonthAdapter(int count, int startYear, int startMonth, CalendarViewDelegate calendarViewDelegate) {
         super(count, startYear, startMonth, calendarViewDelegate);
     }
@@ -17,7 +16,6 @@ public class MonthAdapter extends BaseAdapter {
     @Override
     public List<Date> getDateList(int startYear, int startMonth, int position) {
         int[] date = CalendarUtil.positionToDate(position, startYear, startMonth);
-        List<Date> dates = CalendarUtil.getMonthOfWeekDate2(date[0], date[1]);
-        return dates;
+        return CalendarUtil.getMonthOfWeekDate2(date[0], date[1]);
     }
 }

@@ -5,7 +5,7 @@ import android.graphics.drawable.Drawable;
 import android.support.annotation.ColorInt;
 
 /**
- * 包装的MonthItemView所需要的属性
+ * 由于View的样式参数传递的层级太多，这里包装了CalendarView的参数，方便传递。
  * Created by yangchen on 2017/6/21.
  */
 class CalendarViewDelegate {
