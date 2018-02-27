@@ -36,7 +36,7 @@ class ItemView extends View {
      */
     private int mRow;
 
-    private int mItemWidth, mItemHeight;
+    int mItemWidth, mItemHeight;
 
     private int mFirstItemDrawX, mFirstItemDrawY;
 

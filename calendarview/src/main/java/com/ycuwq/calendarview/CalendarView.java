@@ -18,7 +18,7 @@ public class CalendarView extends ViewGroup {
 
     private MonthAdapter mMonthAdapter;
     private WeekAdapter mWeekAdapter;
-    private ViewPager mWeekPager, mMonthPager;
+    ViewPager mWeekPager, mMonthPager;
     private CalendarViewDelegate mCalendarViewDelegate;
     private WeekInfoView mWeekInfoView;
     public CalendarView(Context context) {
@@ -37,7 +37,6 @@ public class CalendarView extends ViewGroup {
         setDateToCurrent();
         mMonthPager.setVisibility(INVISIBLE);
     }
-
 
     private void setDateToCurrent() {
         LocalDate localDate = new LocalDate();
