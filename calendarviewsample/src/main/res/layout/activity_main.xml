@@ -7,10 +7,12 @@
     android:layout_height="match_parent"
     tools:context="com.example.calendarviewsample.MainActivity">
     <com.ycuwq.calendarview.CalendarLayout
+        android:id="@+id/calendarLayout"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.ycuwq.calendarview.CalendarView
+            android:id="@+id/calendarView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <android.support.v7.widget.RecyclerView

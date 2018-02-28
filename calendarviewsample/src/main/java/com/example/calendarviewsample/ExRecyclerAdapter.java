@@ -16,7 +16,8 @@ import java.util.List;
  */
 public abstract class ExRecyclerAdapter<T> extends RecyclerView.Adapter<ExRecyclerViewHolder>  {
 
-	private List<T> mList;
+    private final String TAG = getClass().getSimpleName();
+    private List<T> mList;
 	private Context mContext;
 	private int layoutRes;
 
@@ -25,8 +26,8 @@ public abstract class ExRecyclerAdapter<T> extends RecyclerView.Adapter<ExRecycl
 		this.layoutRes = layoutRes;
 	}
 
-	public void setList(List<T> mList) {
-		this.mList = mList;
+	public void setList(List<T> list) {
+		this.mList = list;
 		notifyDataSetChanged();
 	}
 
@@ -37,6 +38,7 @@ public abstract class ExRecyclerAdapter<T> extends RecyclerView.Adapter<ExRecycl
 		notifyItemRangeInserted(positionStart + 1, itemCount);
 	}
 
+	@NonNull
 	@Override
 	public ExRecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		View view = LayoutInflater.from(mContext).inflate(layoutRes, parent, false);

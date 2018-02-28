@@ -19,11 +19,11 @@ import java.util.List;
  * Created by ycuwq on 2018/2/23.
  */
 @SuppressLint("ViewConstructor")
-class ItemView extends View {
+class CalendarItemView extends View {
 
-    protected static final int MAX_ROW = 6;       //最大显示的行数
+    static final int MAX_ROW = 6;       //最大显示的行数
 
-    protected static final int MAX_COLUMN = 7;        //显示的列数
+    static final int MAX_COLUMN = 7;        //显示的列数
 
     private Paint mPaint;
 
@@ -36,7 +36,7 @@ class ItemView extends View {
      */
     private int mRow;
 
-    int mItemWidth, mItemHeight;
+    private int mItemWidth, mItemHeight;
 
     private int mFirstItemDrawX, mFirstItemDrawY;
 
@@ -58,7 +58,7 @@ class ItemView extends View {
 
     private OnDaySelectedListener mOnDaySelectedListener;
 
-    public ItemView(Context context, @NonNull CalendarViewDelegate calendarViewDelegate) {
+    public CalendarItemView(Context context, @NonNull CalendarViewDelegate calendarViewDelegate) {
         super(context);
         mCalendarViewDelegate = calendarViewDelegate;
         initPaint();
@@ -135,7 +135,14 @@ class ItemView extends View {
 
         int itemWidth = widthSpecSize / MAX_COLUMN;
 
-        int height = itemWidth * MAX_ROW;
+        int height;
+        if (mRow == 1) {
+            height = itemWidth;
+        } else {
+            height = itemWidth * MAX_ROW;
+        }
+        //最大移动距离 = Month的高度 - Week的高度
+        mCalendarViewDelegate.setCalendarMaximumTranslateY(itemWidth * (MAX_ROW - 1));
         setMeasuredDimension(widthMeasureSpec, height);
     }
 
@@ -147,13 +154,14 @@ class ItemView extends View {
         mDrawnRect.set(getPaddingLeft(), getPaddingTop(),
                 getWidth() - getPaddingRight(), getHeight() - getPaddingBottom());
         mItemWidth = mDrawnRect.width() / MAX_COLUMN;
-        mItemHeight = mDrawnRect.height() / MAX_ROW;
-
-        mItemHeightSpace = (MAX_ROW - mRow) * mItemHeight / mRow;
-
+        if (mRow == 1) {
+            mItemHeight = mDrawnRect.height();
+        } else {
+            mItemHeight = mDrawnRect.height() / MAX_ROW;
+            mItemHeightSpace = (MAX_ROW - mRow) * mItemHeight / mRow;
+        }
         mFirstItemDrawX = mItemWidth / 2;
         mFirstItemDrawY = (int) ((mItemHeight - (mPaint.ascent() + mPaint.descent())) / 2);
-
     }
 
     @Override
@@ -244,5 +252,9 @@ class ItemView extends View {
     }
     interface OnDaySelectedListener {
         void onDaySelected(Date date, int position);
+    }
+
+    public int getItemHeight() {
+        return mItemHeight;
     }
 }

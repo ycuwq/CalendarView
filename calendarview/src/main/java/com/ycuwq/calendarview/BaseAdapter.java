@@ -14,13 +14,14 @@ import java.util.List;
  * Created by ycuwq on 2018/2/25.
  */
 abstract class BaseAdapter extends PagerAdapter {
-    private LinkedList<ItemView> mCache = new LinkedList<>();
-    private SparseArray<ItemView> mViews = new SparseArray<>();
+    private LinkedList<CalendarItemView> mCache = new LinkedList<>();
+    private SparseArray<CalendarItemView> mViews = new SparseArray<>();
 
     private int mCount;
 
     private int mStartYear, mStartMonth;
     private CalendarViewDelegate mCalendarViewDelegate;
+    private CalendarItemView mCurrentView;
 
     public BaseAdapter(int count, int startYear, int startMonth, CalendarViewDelegate calendarViewDelegate) {
         mCount = count;
@@ -37,28 +38,39 @@ abstract class BaseAdapter extends PagerAdapter {
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
-        ItemView itemView;
+        CalendarItemView calendarItemView;
         if (mCache.isEmpty()) {
-            itemView = new ItemView(container.getContext(), mCalendarViewDelegate);
+            calendarItemView = new CalendarItemView(container.getContext(), mCalendarViewDelegate);
         } else {
-            itemView = mCache.removeFirst();
+            calendarItemView = mCache.removeFirst();
         }
-        itemView.setDateList(getDateList(mStartYear, mStartMonth, position));
-        container.addView(itemView);
-        return itemView;
+        calendarItemView.setDateList(getDateList(mStartYear, mStartMonth, position));
+        container.addView(calendarItemView);
+        return calendarItemView;
     }
 
-    public abstract List<Date> getDateList(int startYear, int startMonth, int position);
+    @Override
+    public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+        super.setPrimaryItem(container, position, object);
+        mCurrentView = (CalendarItemView) object;
+
+    }
+
+    protected abstract List<Date> getDateList(int startYear, int startMonth, int position);
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         container.removeView((View) object);
-        mCache.addLast((ItemView) object);
+        mCache.addLast((CalendarItemView) object);
         mViews.remove(position);
     }
 
     @Override
     public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
         return view == object;
+    }
+
+    public CalendarItemView getCurrentView() {
+        return mCurrentView;
     }
 }

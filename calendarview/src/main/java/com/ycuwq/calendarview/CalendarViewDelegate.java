@@ -25,6 +25,9 @@ class CalendarViewDelegate {
 	private @ColorInt
     int mClickTextColor = Color.WHITE;
 
+
+	private int mCalendarMaximumTranslateY;
+
 	boolean isShowLunar() {
 		return mShowLunar;
 	}
@@ -96,4 +99,12 @@ class CalendarViewDelegate {
 	void setClickTextColor(int clickTextColor) {
 		this.mClickTextColor = clickTextColor;
 	}
+
+    public int getCalendarMaximumTranslateY() {
+        return mCalendarMaximumTranslateY;
+    }
+
+    public void setCalendarMaximumTranslateY(int calendarMaximumTranslateY) {
+        mCalendarMaximumTranslateY = calendarMaximumTranslateY;
+    }
 }
