@@ -13,7 +13,7 @@ import java.util.List;
  * MonthAdapter和WeekAdapter的基类。
  * Created by ycuwq on 2018/2/25.
  */
-abstract class BaseAdapter extends PagerAdapter {
+abstract class BaseCalendarAdapter extends PagerAdapter {
     private LinkedList<CalendarItemView> mCache = new LinkedList<>();
     private SparseArray<CalendarItemView> mViews = new SparseArray<>();
 
@@ -23,7 +23,7 @@ abstract class BaseAdapter extends PagerAdapter {
     private CalendarViewDelegate mCalendarViewDelegate;
     private CalendarItemView mCurrentView;
 
-    public BaseAdapter(int count, int startYear, int startMonth, CalendarViewDelegate calendarViewDelegate) {
+    BaseCalendarAdapter(int count, int startYear, int startMonth, CalendarViewDelegate calendarViewDelegate) {
         mCount = count;
         mStartYear = startYear;
         mStartMonth = startMonth;
@@ -53,7 +53,6 @@ abstract class BaseAdapter extends PagerAdapter {
     public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         super.setPrimaryItem(container, position, object);
         mCurrentView = (CalendarItemView) object;
-
     }
 
     protected abstract List<Date> getDateList(int startYear, int startMonth, int position);

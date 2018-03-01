@@ -7,9 +7,9 @@ import java.util.List;
 /**
  * Created by ycuwq on 2018/2/17.
  */
-public class MonthAdapter extends BaseAdapter {
+public class MonthCalendarAdapter extends BaseCalendarAdapter {
 
-    public MonthAdapter(int count, int startYear, int startMonth, CalendarViewDelegate calendarViewDelegate) {
+    public MonthCalendarAdapter(int count, int startYear, int startMonth, CalendarViewDelegate calendarViewDelegate) {
         super(count, startYear, startMonth, calendarViewDelegate);
     }
 
@@ -18,4 +18,5 @@ public class MonthAdapter extends BaseAdapter {
         int[] date = CalendarUtil.positionToDate(position, startYear, startMonth);
         return CalendarUtil.getMonthOfWeekDate2(date[0], date[1]);
     }
+
 }

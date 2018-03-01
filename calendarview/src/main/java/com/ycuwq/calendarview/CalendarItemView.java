@@ -56,7 +56,6 @@ class CalendarItemView extends View {
 
     private int mSelectedItemPosition = -1;
 
-    private OnDaySelectedListener mOnDaySelectedListener;
 
     public CalendarItemView(Context context, @NonNull CalendarViewDelegate calendarViewDelegate) {
         super(context);
@@ -77,6 +76,9 @@ class CalendarItemView extends View {
         requestLayout();
     }
 
+    public List<Date> getDates() {
+        return mDates;
+    }
 
     private void initPaint() {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG | Paint.LINEAR_TEXT_FLAG);
@@ -85,10 +87,6 @@ class CalendarItemView extends View {
         mPaint.setTextSize(mCalendarViewDelegate.getTextSizeTop());
     }
 
-
-    public void setOnDaySelectedListener(OnDaySelectedListener onDaySelectedListener) {
-        mOnDaySelectedListener = onDaySelectedListener;
-    }
 
     public void selectDate(Date date) {
         int position = mDates.indexOf(date);
@@ -239,10 +237,11 @@ class CalendarItemView extends View {
                         int row = (int) (event.getY() / (mItemHeight + mItemHeightSpace));
                         int column = (int) (event.getX() / mItemWidth);
                         int position = row * MAX_COLUMN + column;
-                        selectedDate(position);
-                        if (mOnDaySelectedListener != null) {
-                            mOnDaySelectedListener.onDaySelected(mDates.get(position), position);
+                        if (mCalendarViewDelegate.getOnInnerDateSelectedListener() != null) {
+                            mCalendarViewDelegate.getOnInnerDateSelectedListener()
+                                    .onDateSelected((mDates.get(position)));
                         }
+                        selectedDate(position);
                         return true;
                     }
                 }
@@ -250,10 +249,6 @@ class CalendarItemView extends View {
         }
         return super.onTouchEvent(event);
     }
-    interface OnDaySelectedListener {
-        void onDaySelected(Date date, int position);
-    }
-
     public int getItemHeight() {
         return mItemHeight;
     }

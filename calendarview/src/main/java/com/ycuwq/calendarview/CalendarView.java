@@ -9,6 +9,8 @@ import com.ycuwq.calendarview.utils.CalendarUtil;
 
 import org.joda.time.LocalDate;
 
+import timber.log.Timber;
+
 /**
  * Created by ycuwq on 2018/2/11.
  */
@@ -17,8 +19,8 @@ public class CalendarView extends ViewGroup {
     public static final int TYPE_MONTH = 0;
     public static final int TYPE_WEEK = 1;
 
-    private MonthAdapter mMonthAdapter;
-    private WeekAdapter mWeekAdapter;
+    private MonthCalendarAdapter mMonthAdapter;
+    private WeekCalendarAdapter mWeekAdapter;
     private CalendarItemPager mWeekPager, mMonthPager;
     private CalendarViewDelegate mCalendarViewDelegate;
     private WeekInfoView mWeekInfoView;
@@ -36,6 +38,13 @@ public class CalendarView extends ViewGroup {
         super(context, attrs, defStyleAttr);
         mCalendarViewDelegate = new CalendarViewDelegate();
         mCalendarViewDelegate.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
+
+        mCalendarViewDelegate.setOnInnerDateSelectedListener(new OnInnerDateSelectedListener() {
+            @Override
+            public void onDateSelected(Date date) {
+                mCalendarViewDelegate.setSelectedDate(date);
+            }
+        });
         initChild();
         setDateToCurrent();
         mWeekPager.setVisibility(INVISIBLE);
@@ -44,12 +53,10 @@ public class CalendarView extends ViewGroup {
 
     private void setDateToCurrent() {
         LocalDate localDate = new LocalDate();
-        int monthPosition = CalendarUtil.getMonthPosition(1980, 1,
-                localDate.getYear(), localDate.getMonthOfYear());
-        mMonthPager.setCurrentItem(monthPosition, false);
-        int weekPosition = CalendarUtil.getWeekPosition(1980, 1, 1,
-                localDate.getYear(), localDate.getMonthOfYear(), localDate.getDayOfMonth());
-        mWeekPager.setCurrentItem(weekPosition, false);
+        mCalendarViewDelegate.setSelectedDate(new Date(localDate.getYear(),
+                localDate.getMonthOfYear(), localDate.getDayOfMonth()));
+        scrollToDate(localDate.getYear(), localDate.getMonthOfYear(),
+                localDate.getDayOfMonth(), false);
     }
 
     private void initChild() {
@@ -58,12 +65,12 @@ public class CalendarView extends ViewGroup {
         addView(mWeekInfoView, 0, layoutParams);
         mWeekInfoView.setTranslationZ(1);
         mWeekPager = new CalendarItemPager(getContext());
-        mWeekAdapter = new WeekAdapter(20000, 1980, 1, mCalendarViewDelegate);
+        mWeekAdapter = new WeekCalendarAdapter(20000, 1980, 1, mCalendarViewDelegate);
         mWeekPager.setOffscreenPageLimit(1);
         mWeekPager.setAdapter(mWeekAdapter);
         addView(mWeekPager, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         mWeekPager.setTranslationY(-1);
-        mMonthAdapter = new MonthAdapter(20000, 1980, 1, mCalendarViewDelegate);
+        mMonthAdapter = new MonthCalendarAdapter(20000, 1980, 1, mCalendarViewDelegate);
         mMonthPager = new CalendarItemPager(getContext());
         mMonthPager.setOffscreenPageLimit(1);
         mMonthPager.setAdapter(mMonthAdapter);
@@ -144,5 +151,22 @@ public class CalendarView extends ViewGroup {
         mCalendarType = TYPE_MONTH;
         mMonthPager.setVisibility(VISIBLE);
         mWeekPager.setVisibility(GONE);
+    }
+
+    public void scrollToDate(int year, int month, int day, boolean smoothScroll) {
+        if (mCalendarType == TYPE_MONTH) {
+            int monthPosition = CalendarUtil.getMonthPosition(mCalendarViewDelegate.getStartYear(),
+                    mCalendarViewDelegate.getStartMonth(), year, month);
+            mMonthPager.setCurrentItem(monthPosition, smoothScroll);
+        } else {
+            int weekPosition = CalendarUtil.getWeekPosition(mCalendarViewDelegate.getStartYear(),
+                    mCalendarViewDelegate.getStartMonth(), 1,
+                    year, month, day);
+            mWeekPager.setCurrentItem(weekPosition, smoothScroll);
+        }
+    }
+
+    public interface OnInnerDateSelectedListener {
+        void onDateSelected(Date date);
     }
 }

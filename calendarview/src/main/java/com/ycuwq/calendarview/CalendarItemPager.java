@@ -6,13 +6,22 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 
 /**
- * ViewPager高度不能适应子View的大小，所以重写onMeasure
+ * Month和Week的页视图
  * Created by ycuwq on 2018/2/28.
  */
 public class CalendarItemPager extends ViewPager {
+
     public CalendarItemPager(@NonNull Context context) {
         super(context);
     }
+
+    void scrollToDate(int year, int month, int date, boolean smoothScroll) {
+
+    }
+
+    /**
+     * ViewPager高度不能适应子View的大小，所以重写onMeasure
+     */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int height = 0;

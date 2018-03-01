@@ -11,24 +11,45 @@ import android.support.annotation.ColorInt;
 class CalendarViewDelegate {
 
 	private boolean mShowLunar = true;          //是否显示农历
+
 	private boolean mShowHoliday = true;        //是否显示节假日
+
 	private int mTextSizeTop = 48;                              //日历的日期字体
+
 	private int mTextSizeBottom = 32;                            //节日，阴历的字体
-	private @ColorInt
-    int mTextColorTop = Color.BLACK;        //日历的日期颜色
-	private @ColorInt
-    int mTextColorBottom = Color.parseColor("#999999");   //节日，阴历的日期颜色
+
+	private @ColorInt int mTextColorTop = Color.BLACK;        //日历的日期颜色
+
+	private @ColorInt int mTextColorBottom = Color.parseColor("#999999");   //节日，阴历的日期颜色
 
 	private @ColorInt
+
     int mBackgroundColor = Color.WHITE;    //背景颜色
+
 	private Drawable mSelectedBg;
+
 	private @ColorInt
+
     int mClickTextColor = Color.WHITE;
 
+	private CalendarView.OnInnerDateSelectedListener mOnInnerDateSelectedListener;
 
 	private int mCalendarMaximumTranslateY;
 
-	boolean isShowLunar() {
+    /**
+     * 当前选中的日期
+     */
+	private Date mSelectedDate;
+
+	private int startYear, startMonth;
+
+
+    public CalendarViewDelegate() {
+        startYear = 1980;
+        startMonth = 1;
+    }
+
+    boolean isShowLunar() {
 		return mShowLunar;
 	}
 
@@ -106,5 +127,37 @@ class CalendarViewDelegate {
 
     public void setCalendarMaximumTranslateY(int calendarMaximumTranslateY) {
         mCalendarMaximumTranslateY = calendarMaximumTranslateY;
+    }
+
+	public CalendarView.OnInnerDateSelectedListener getOnInnerDateSelectedListener() {
+		return mOnInnerDateSelectedListener;
+	}
+
+	public void setOnInnerDateSelectedListener(CalendarView.OnInnerDateSelectedListener onInnerDateSelectedListener) {
+		mOnInnerDateSelectedListener = onInnerDateSelectedListener;
+	}
+
+    public Date getSelectedDate() {
+        return mSelectedDate;
+    }
+
+    public void setSelectedDate(Date selectedDate) {
+        mSelectedDate = selectedDate;
+    }
+
+    public int getStartYear() {
+        return startYear;
+    }
+
+    public void setStartYear(int startYear) {
+        this.startYear = startYear;
+    }
+
+    public int getStartMonth() {
+        return startMonth;
+    }
+
+    public void setStartMonth(int startMonth) {
+        this.startMonth = startMonth;
     }
 }
