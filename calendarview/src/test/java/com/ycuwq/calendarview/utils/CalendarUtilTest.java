@@ -10,6 +10,8 @@ import static org.junit.Assert.assertEquals;
  * Created by ycuwq on 2018/2/13.
  */
 public class CalendarUtilTest {
+
+
     @Test
     public void getDate() throws Exception {
     }
@@ -39,9 +41,15 @@ public class CalendarUtilTest {
     }
 
     @Test
+    public void getMonthDates() throws Exception {
+        List<Date> dates = CalendarUtil.getMonthDates(2018, 7);
+        assertEquals(42, dates.size());
+    }
+
+    @Test
     public void getWeekPosition() throws Exception {
         int weekPosition = CalendarUtil.getWeekPosition(2017, 7, 14, 2017, 8, 16);
-        assertEquals(4, weekPosition);
+        assertEquals(5, weekPosition);
         weekPosition = CalendarUtil.getWeekPosition(1980, 1, 1, 2018, 2, 25);
         assertEquals(1990, weekPosition);
     }
@@ -55,13 +63,13 @@ public class CalendarUtilTest {
 
     @Test
     public void getMonthOfWeekDate() throws Exception {
-        List<List<Date>> lists = CalendarUtil.getMonthOfWeekDate(2018, 2);
+        List<List<Date>> lists = CalendarUtil.getMonthOfWeekDates(2018, 2);
         assertEquals(5, lists.size());
 
-        List<List<Date>> lists2 = CalendarUtil.getMonthOfWeekDate(2017, 12);
+        List<List<Date>> lists2 = CalendarUtil.getMonthOfWeekDates(2017, 12);
         assertEquals(5, lists2.size());
 
-        List<List<Date>> lists3 = CalendarUtil.getMonthOfWeekDate(2018, 1);
+        List<List<Date>> lists3 = CalendarUtil.getMonthOfWeekDates(2018, 1);
         assertEquals(6, lists3.size());
     }
 

@@ -43,6 +43,10 @@ class CalendarViewDelegate {
 
 	private int startYear, startMonth;
 
+    /**
+     * CalendarItem 的高度，也是WeekPager的高度
+     */
+	private int mCalendarItemRowHeight;
 
     public CalendarViewDelegate() {
         startYear = 1980;
@@ -159,5 +163,13 @@ class CalendarViewDelegate {
 
     public void setStartMonth(int startMonth) {
         this.startMonth = startMonth;
+    }
+
+    public int getCalendarItemRowHeight() {
+        return mCalendarItemRowHeight;
+    }
+
+    public void setCalendarItemRowHeight(int calendarItemRowHeight) {
+        mCalendarItemRowHeight = calendarItemRowHeight;
     }
 }

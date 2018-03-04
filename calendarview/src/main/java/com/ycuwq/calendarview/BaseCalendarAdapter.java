@@ -46,6 +46,7 @@ abstract class BaseCalendarAdapter extends PagerAdapter {
         }
         calendarItemView.setDateList(getDateList(mStartYear, mStartMonth, position));
         container.addView(calendarItemView);
+        calendarItemView.setTag(position);
         return calendarItemView;
     }
 

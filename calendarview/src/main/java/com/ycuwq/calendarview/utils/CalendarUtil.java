@@ -21,16 +21,19 @@ public class CalendarUtil {
         date.setWeek(localDate.getDayOfWeek());
         date.setHoliday(SolarUtil.getSolarHoliday(year, month, day));
         date.setType(type);
-        String[] lunar = LunarUtil.solarToLunar(year, month, day);
-        date.setLunarMonth(lunar[0]);
-        date.setLunarDay(lunar[1]);
-        date.setLunarHoliday(lunar[2]);
-
+        setupLunarData(date);
         return date;
     }
 
+    static void setupLunarData(Date date) {
+        String[] lunar = LunarUtil.getLunarInfo(date.getYear(), date.getMonth(), date.getDay());
+        date.setLunarMonth(lunar[0]);
+        date.setLunarDay(lunar[1]);
+        date.setLunarHoliday(lunar[2]);
+        date.setTerm(lunar[3]);
+    }
 
-    public static List<List<Date>> getMonthOfWeekDate(int year, int month) {
+    public static List<List<Date>> getMonthOfWeekDates(int year, int month) {
 //        long curTime = System.currentTimeMillis();
         LocalDate localDate = new LocalDate(year, month, 1);
         List<List<Date>> weeks = new ArrayList<>();
@@ -42,7 +45,7 @@ public class CalendarUtil {
         return weeks;
     }
 
-    public static List<Date> getMonthOfWeekDate2(int year, int month) {
+    public static List<Date> getMonthDates(int year, int month) {
 //        long curTime = System.currentTimeMillis();
         LocalDate localDate = new LocalDate(year, month, 1);
         List<Date> dates = new ArrayList<>();

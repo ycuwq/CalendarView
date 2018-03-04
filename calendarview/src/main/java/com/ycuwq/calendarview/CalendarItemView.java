@@ -56,7 +56,6 @@ class CalendarItemView extends View {
 
     private int mSelectedItemPosition = -1;
 
-
     public CalendarItemView(Context context, @NonNull CalendarViewDelegate calendarViewDelegate) {
         super(context);
         mCalendarViewDelegate = calendarViewDelegate;
@@ -99,8 +98,15 @@ class CalendarItemView extends View {
 
     public void selectedDate(int position) {
         if (position >= 0 && position < mDates.size()) {
+            if (mSelectedItemPosition == position) {
+                return;
+            }
             mSelectedItemPosition = position;
             postInvalidate();
+            if (mCalendarViewDelegate.getOnInnerDateSelectedListener() != null) {
+                mCalendarViewDelegate.getOnInnerDateSelectedListener()
+                        .onDateSelected((mDates.get(position)));
+            }
         }
     }
 
@@ -139,12 +145,8 @@ class CalendarItemView extends View {
         } else {
             height = itemWidth * MAX_ROW;
         }
-        //最大移动距离 = Month的高度 - Week的高度
-        mCalendarViewDelegate.setCalendarMaximumTranslateY(itemWidth * (MAX_ROW - 1));
         setMeasuredDimension(widthMeasureSpec, height);
     }
-
-
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
@@ -156,7 +158,9 @@ class CalendarItemView extends View {
             mItemHeight = mDrawnRect.height();
         } else {
             mItemHeight = mDrawnRect.height() / MAX_ROW;
-            mItemHeightSpace = (MAX_ROW - mRow) * mItemHeight / mRow;
+        }
+        if (mCalendarViewDelegate.getCalendarItemRowHeight() != mItemHeight) {
+            mCalendarViewDelegate.setCalendarItemRowHeight(mItemHeight);
         }
         mFirstItemDrawX = mItemWidth / 2;
         mFirstItemDrawY = (int) ((mItemHeight - (mPaint.ascent() + mPaint.descent())) / 2);
@@ -165,6 +169,7 @@ class CalendarItemView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        mItemHeightSpace = (MAX_ROW - mRow) * mItemHeight / mRow;
         if (mSelectedItemPosition >= 0 && mSelectedItemPosition < mDates.size()) {
             int row = mSelectedItemPosition / MAX_COLUMN;
             int column = mSelectedItemPosition % MAX_COLUMN;
@@ -237,10 +242,7 @@ class CalendarItemView extends View {
                         int row = (int) (event.getY() / (mItemHeight + mItemHeightSpace));
                         int column = (int) (event.getX() / mItemWidth);
                         int position = row * MAX_COLUMN + column;
-                        if (mCalendarViewDelegate.getOnInnerDateSelectedListener() != null) {
-                            mCalendarViewDelegate.getOnInnerDateSelectedListener()
-                                    .onDateSelected((mDates.get(position)));
-                        }
+
                         selectedDate(position);
                         return true;
                     }
@@ -252,4 +254,16 @@ class CalendarItemView extends View {
     public int getItemHeight() {
         return mItemHeight;
     }
+
+    int getSelectedItemTop() {
+        int row = mSelectedItemPosition / MAX_COLUMN;
+        return row * (mItemHeight + mItemHeightSpace);
+    }
+    int getSelectedItemBottom() {
+        return getSelectedItemTop() + mItemHeight;
+    }
+    int getMaxHeight() {
+        return mItemHeight * MAX_ROW;
+    }
+
 }

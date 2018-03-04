@@ -16,7 +16,8 @@ public class MonthCalendarAdapter extends BaseCalendarAdapter {
     @Override
     public List<Date> getDateList(int startYear, int startMonth, int position) {
         int[] date = CalendarUtil.positionToDate(position, startYear, startMonth);
-        return CalendarUtil.getMonthOfWeekDate2(date[0], date[1]);
+
+        return CalendarUtil.getMonthDates(date[0], date[1]);
     }
 
 }

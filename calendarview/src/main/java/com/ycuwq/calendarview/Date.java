@@ -26,6 +26,7 @@ public class Date {
 	private String lunarDay;        //农历日
 	private String lunarHoliday;     //农历节日
 	private int type;               //类型，0 - 当月，-1 - 上月， 1 - 下月；
+	private String term;            //节气
 	public Date() {
 	}
 
@@ -107,7 +108,15 @@ public class Date {
 		this.lunarHoliday = lunarHoliday;
 	}
 
-	public String getDate(DateFormat dateFormat) {
+    public String getTerm() {
+        return term;
+    }
+
+    public void setTerm(String term) {
+        this.term = term;
+    }
+
+    public String getDate(DateFormat dateFormat) {
 		Calendar calendar = Calendar.getInstance();
 		//Calendar月份是从第0个月开始算的，所以要减一
 		calendar.set(year, month -1, day);
