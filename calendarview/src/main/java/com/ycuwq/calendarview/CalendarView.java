@@ -11,8 +11,10 @@ import com.ycuwq.calendarview.utils.CalendarUtil;
 import org.joda.time.LocalDate;
 
 import java.util.Calendar;
+import java.util.List;
 
 /**
+ * 日历的主体类
  * Created by ycuwq on 2018/2/11.
  */
 public class CalendarView extends ViewGroup {
@@ -49,23 +51,19 @@ public class CalendarView extends ViewGroup {
             if (getCalendarType() == TYPE_MONTH) {
                 //这里15只要是中间的任意值就可以，目的是保证获取的是当前月份的日期，不是上月或者下月。
                 Date date = calendarItemView.getDates().get(15);
-
+                int day = lastSelectedDate.getDay();
                 //在翻页的时候有可能会出现之前选中的日期超过当前月的最大天数，如果超过的话选择当前月的最后一天替代。
                 if (lastSelectedDate.getDay() > 28) {
                     Calendar calendar = Calendar.getInstance();
                     calendar.set(lastSelectedDate.getYear(), lastSelectedDate.getMonth() - 1, 1);
                     int maxDayOfMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    calendarItemView.selectDate(new Date(date.getYear(), date.getMonth(),
-                            maxDayOfMonth < lastSelectedDate.getDay() ? maxDayOfMonth : lastSelectedDate.getDay()));
-
-                } else {
-                    calendarItemView.selectDate(new Date(date.getYear(),
-                            date.getMonth(), lastSelectedDate.getDay()));
+                    day = maxDayOfMonth < lastSelectedDate.getDay() ? maxDayOfMonth :
+                            lastSelectedDate.getDay();
                 }
+                calendarItemView.selectDate(new Date(date.getYear(), date.getMonth(), day));
             } else {
                 //周日期可直接用第几个View跳转。week的范围是1-7，所以减一
-                calendarItemView.selectedDate(lastSelectedDate.getWeek() - 1);
+                calendarItemView.selectDate(lastSelectedDate.getWeek() - 1);
             }
         }
 
@@ -86,12 +84,16 @@ public class CalendarView extends ViewGroup {
     public CalendarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mCalendarViewDelegate = new CalendarViewDelegate();
-        mCalendarViewDelegate.setSelectedBg(context.getResources().getDrawable(R.drawable.com_ycuwq_calendarview_blue_circle));
 
         mCalendarViewDelegate.setOnInnerDateSelectedListener(new OnInnerDateSelectedListener() {
             @Override
             public void onDateSelected(Date date) {
                 mCalendarViewDelegate.setSelectedDate(date);
+                if (mCalendarType == TYPE_WEEK) {
+                    scrollMonthToDate(date.getYear(), date.getMonth(), date.getDay(), false);
+                } else {
+                    scrollWeekToDate(date.getYear(), date.getMonth(), date.getDay(), false);
+                }
             }
         });
         initChild();
@@ -119,17 +121,20 @@ public class CalendarView extends ViewGroup {
         mWeekInfoView = new WeekInfoView(getContext(), mCalendarViewDelegate);
         addView(mWeekInfoView, 0, layoutParams);
         mWeekInfoView.setTranslationZ(1);
-        mWeekPager = new CalendarItemPager(getContext());
-        mWeekAdapter = new WeekCalendarAdapter(20000, 1980, 1, mCalendarViewDelegate);
-        mWeekPager.setOffscreenPageLimit(1);
-        mWeekPager.setAdapter(mWeekAdapter);
-        addView(mWeekPager, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        mMonthAdapter = new MonthCalendarAdapter(20000, 1980, 1, mCalendarViewDelegate);
+
+        mMonthAdapter = new MonthCalendarAdapter(20000, mCalendarViewDelegate.getStartYear(),
+                mCalendarViewDelegate.getStartMonth(), mCalendarViewDelegate);
         mMonthPager = new CalendarItemPager(getContext());
         mMonthPager.setOffscreenPageLimit(1);
         mMonthPager.setAdapter(mMonthAdapter);
         addView(mMonthPager, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 
+        mWeekPager = new CalendarItemPager(getContext());
+        mWeekAdapter = new WeekCalendarAdapter(20000, mCalendarViewDelegate.getStartYear(),
+                mCalendarViewDelegate.getStartMonth(), mCalendarViewDelegate);
+        mWeekPager.setOffscreenPageLimit(1);
+        mWeekPager.setAdapter(mWeekAdapter);
+        addView(mWeekPager, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
         mMonthPager.addOnPageChangeListener(mOnPageChangeListener);
         mWeekPager.addOnPageChangeListener(mOnPageChangeListener);
     }
@@ -167,79 +172,34 @@ public class CalendarView extends ViewGroup {
         return mMonthPager;
     }
 
-    /**
-     * 获取日历最大可以滑动的距离
-     * 最大滑动距离 = Month的高度 - Week的高度
-     * @return
-     */
-    int getMaximumTranslateY() {
-        CalendarItemView calendarItemView;
-        if (mMonthPager.getVisibility() != GONE) {
-            calendarItemView = mMonthAdapter.getCurrentView();
-        } else {
-            calendarItemView = mWeekAdapter.getCurrentView();
-        }
-        return calendarItemView.getItemHeight() * (CalendarItemView.MAX_ROW - 1);
-    }
-
-    WeekInfoView getWeekInfoView() {
-        return mWeekInfoView;
-    }
-
     CalendarViewDelegate getCalendarViewDelegate() {
         return mCalendarViewDelegate;
     }
 
-    public int getCalendarType() {
-        return mCalendarType;
-    }
-
-    public void setCalendarType(int calendarType) {
-        if (calendarType == TYPE_MONTH) {
-            setTypeToMonth();
-        } else {
-            setTypeToWeek();
-        }
-    }
-    public void setTypeToWeek() {
-        if (mCalendarType == TYPE_WEEK) {
-            return;
-        }
-        mCalendarType = TYPE_WEEK;
-        mMonthPager.setVisibility(GONE);
-        mWeekPager.setVisibility(VISIBLE);
+    void scrollToSelectedDate() {
         scrollToDate(mCalendarViewDelegate.getSelectedDate(), false);
     }
 
-    public void setTypeToMonth() {
-        if (mCalendarType == TYPE_MONTH) {
-            return;
-        }
-        mCalendarType = TYPE_MONTH;
-        mMonthPager.setVisibility(VISIBLE);
-        mWeekPager.setVisibility(GONE);
-        scrollToDate(mCalendarViewDelegate.getSelectedDate(), false);
-    }
 
-    public void scrollToDate(Date date, boolean smoothScroll) {
+    void scrollToDate(Date date, boolean smoothScroll) {
         scrollToDate(date.getYear(), date.getMonth(), date.getDay(), smoothScroll);
     }
 
-    public void scrollToDate(int year, int month, int day, boolean smoothScroll) {
-        int position;
-        CalendarItemView calendarItemView;
-        if (mCalendarType == TYPE_MONTH) {
-            position = CalendarUtil.getMonthPosition(mCalendarViewDelegate.getStartYear(),
-                    mCalendarViewDelegate.getStartMonth(), year, month);
-            mMonthPager.setCurrentItem(position, smoothScroll);
-            calendarItemView = mMonthPager.findViewWithTag(position);
-        } else {
-            position = CalendarUtil.getWeekPosition(mCalendarViewDelegate.getStartYear(),
-                    mCalendarViewDelegate.getStartMonth(), 1,
-                    year, month, day);
-            mWeekPager.setCurrentItem(position, smoothScroll);
-            calendarItemView = mWeekPager.findViewWithTag(position);
+    void scrollWeekToDate(int year, int month, int day, boolean smoothScroll) {
+        int position = CalendarUtil.getWeekPosition(mCalendarViewDelegate.getStartYear(),
+                mCalendarViewDelegate.getStartMonth(), 1,
+                year, month, day);
+        mWeekPager.setCurrentItem(position, smoothScroll);
+        CalendarItemView calendarItemView = mWeekPager.findViewWithTag(position);
+        if (calendarItemView != null) {
+            calendarItemView.selectDate(new Date(year, month, day));
         }
+    }
+    void scrollMonthToDate(int year, int month, int day, boolean smoothScroll) {
+        int position = CalendarUtil.getMonthPosition(mCalendarViewDelegate.getStartYear(),
+                mCalendarViewDelegate.getStartMonth(), year, month);
+        mMonthPager.setCurrentItem(position, smoothScroll);
+        CalendarItemView calendarItemView = mMonthPager.findViewWithTag(position);
         if (calendarItemView != null) {
             calendarItemView.selectDate(new Date(year, month, day));
         }
@@ -256,6 +216,77 @@ public class CalendarView extends ViewGroup {
         return calendarItemView;
     }
 
+    public int getCalendarType() {
+        return mCalendarType;
+    }
+
+    /**
+     * 设置日历模式
+     * @param calendarType
+     */
+    public void setCalendarType(int calendarType) {
+        if (calendarType == TYPE_MONTH) {
+            setTypeToMonth();
+        } else {
+            setTypeToWeek();
+        }
+    }
+
+    /**
+     * 设置日历模式到周模式
+     */
+    public void setTypeToWeek() {
+        if (mCalendarType == TYPE_WEEK) {
+            return;
+        }
+        mCalendarType = TYPE_WEEK;
+        mMonthPager.setTranslationY(0);
+        mMonthPager.setVisibility(GONE);
+        mWeekPager.setVisibility(VISIBLE);
+        scrollToSelectedDate();
+    }
+
+    /**
+     * 设置日历模式到月模式
+     */
+    public void setTypeToMonth() {
+        if (mCalendarType == TYPE_MONTH) {
+            return;
+        }
+        mCalendarType = TYPE_MONTH;
+        mMonthPager.setTranslationY(0);
+        mMonthPager.setVisibility(VISIBLE);
+        mWeekPager.setVisibility(GONE);
+        scrollToSelectedDate();
+    }
+
+    /**
+     * 设置事项标记
+     * @param schemes
+     */
+    public void setSchemes(List<Date> schemes) {
+        mCalendarViewDelegate.setSchemes(schemes);
+        mMonthPager.updateScheme();
+        mWeekPager.updateScheme();
+    }
+
+    /**
+     * 跳转到日期
+     * @param year 年
+     * @param month 月
+     * @param day 日
+     * @param smoothScroll 是否平滑滚动
+     */
+    public void scrollToDate(int year, int month, int day, boolean smoothScroll) {
+        if (mMonthPager.getVisibility() == VISIBLE) {
+            scrollMonthToDate(year, month, day, smoothScroll);
+            scrollWeekToDate(year, month, day, false);
+        } else {
+            scrollMonthToDate(year, month, day, false);
+            scrollWeekToDate(year, month, day, smoothScroll);
+        }
+
+    }
 
     public interface OnInnerDateSelectedListener {
         void onDateSelected(Date date);

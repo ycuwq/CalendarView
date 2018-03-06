@@ -15,24 +15,42 @@ import android.view.ViewConfiguration;
 import android.widget.AbsListView;
 import android.widget.LinearLayout;
 
-import timber.log.Timber;
-
 /**
  * CalendarView的父容器，实现滚动方法
  * Created by ycuwq on 2018/2/26.
  */
 public class CalendarLayout extends LinearLayout {
-    private final String TAG = getClass().getSimpleName();
 
     private CalendarView mCalendarView;
     private View mContentView;
-    private float mLastDownY;
-    private int mTouchSlop, mMaximumVelocity;
+    private float mMoveY, mLastDownY;
+    private int mTouchSlop;
+
     private CalendarItemPager mMonthPager;
 
+    /**
+     * contentView最大上滑距离
+     */
     private int mContentViewMaxTranslationY;
-    private boolean mIsAnimating;
+
+    /**
+     * MonthView选中的Item的顶部坐标
+     */
+    private int mMonthViewSelectedItemTop;
+
     private int mContentViewOverScrollMode;
+
+    /**
+     * 是否在动画中在动画中，在动画中拦截触摸监听
+     */
+    private boolean mIsAnimating;
+
+
+    /**
+     * 是否允许滚动切换周月显示
+     */
+    private boolean mEnableScroll = true;
+
     public CalendarLayout(Context context) {
         this(context, null);
     }
@@ -47,23 +65,21 @@ public class CalendarLayout extends LinearLayout {
         final ViewConfiguration configuration = ViewConfiguration.get(context);
 
         mTouchSlop = configuration.getScaledTouchSlop();
-        mMaximumVelocity = configuration.getScaledMaximumFlingVelocity();
     }
 
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        if (getChildCount() == 2) {
-            if (getChildAt(0) instanceof CalendarView) {
-                mCalendarView = (CalendarView) getChildAt(0);
+        if (getChildCount() == 2 && getChildAt(0) instanceof CalendarView) {
+            mCalendarView = (CalendarView) getChildAt(0);
 
-                mMonthPager = mCalendarView.getMonthPager();
-            }
-            mContentView = getChildAt(1);
-            mContentViewOverScrollMode = mContentView.getOverScrollMode();
+            mMonthPager = mCalendarView.getMonthPager();
+        } else {
+            throw new ViewNotFoundException(getClass().getName() + " must be 2 child view, " +
+                    "and first child is com.ycuwq.calendarview.CalendarView");
         }
-        // TODO: 2018/2/28 如果子View不等于2抛出异常
-
+        mContentView = getChildAt(1);
+        mContentViewOverScrollMode = mContentView.getOverScrollMode();
     }
 
     /**
@@ -87,8 +103,11 @@ public class CalendarLayout extends LinearLayout {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (!mEnableScroll) {
+            return;
+        }
         //在m将ContentView扩大，否则ContentView在上滑的时候下边会有空隙。
-        if (mCalendarView.getCalendarType() == CalendarView.TYPE_MONTH) {
+        if (mCalendarView.getMonthPager().getVisibility() == VISIBLE) {
             int monthPagerHeight = mCalendarView.getMonthPager().getMeasuredHeight();
             mContentViewMaxTranslationY = monthPagerHeight - monthPagerHeight / CalendarItemView.MAX_ROW;
             int contentViewHeight = mContentView.getMeasuredHeight() + mContentViewMaxTranslationY;
@@ -96,41 +115,45 @@ public class CalendarLayout extends LinearLayout {
             mContentView.measure(widthMeasureSpec, heightSpec);
         }
         //如果mContentViewMaxTranslation 为0的话，计算该值。
-        if (mContentViewMaxTranslationY == 0 && mCalendarView.getCalendarType() == CalendarView.TYPE_WEEK) {
+        if (mContentViewMaxTranslationY == 0 && mCalendarView.getMonthPager().getVisibility() == GONE) {
             int weekPagerHeight = mCalendarView.getWeekPager().getMeasuredHeight();
             mContentViewMaxTranslationY = weekPagerHeight * (CalendarItemView.MAX_ROW - 1);
         }
+    }
 
+    private void updateSelectedItemTop() {
+        CalendarItemView calendarItemView =  mMonthPager.findViewWithTag(mMonthPager.getCurrentItem());
+        if (calendarItemView == null) {
+            return;
+        }
+        mMonthViewSelectedItemTop = calendarItemView.getSelectedItemTop();
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        Timber.d("onInterceptTouchEvent");
+        if (!mEnableScroll) {
+            return super.onInterceptTouchEvent(ev);
+        }
+        updateSelectedItemTop();
         if (mIsAnimating) {
             return true;
         }
         float y = ev.getY();
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                mLastDownY = y;
+                mMoveY = mLastDownY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
-                float dy = y - mLastDownY;
+                float dy = y - mMoveY;
                 if (Math.abs(dy) < mTouchSlop) {
                     return false;
                 }
-                if (mCalendarView.getCalendarType() == CalendarView.TYPE_MONTH) {
-                    if (dy > 0) {
-                        return mContentView.getTranslationY() < 0;
-                    } else {
-                        return true;
-                    }
-                } else if (mCalendarView.getCalendarType() == CalendarView.TYPE_WEEK) {
-                    if (dy < 0) {
-                        return false;
-                    } else {
-                        return true;
-                    }
+                if (mCalendarView.getCalendarType() == CalendarView.TYPE_MONTH && dy < 0) {
+                    mContentView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+                    return true;
+                } else if (mCalendarView.getCalendarType() == CalendarView.TYPE_WEEK && dy > 0) {
+                    mContentView.setOverScrollMode(View.OVER_SCROLL_NEVER);
+                    return true;
                 }
                 break;
             case MotionEvent.ACTION_UP:
@@ -142,90 +165,113 @@ public class CalendarLayout extends LinearLayout {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (!mEnableScroll) {
+            return super.onTouchEvent(event);
+        }
+        if (mIsAnimating) {
+            return true;
+        }
         float y = event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                mLastDownY = y;
+                mMoveY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
-                float dy = y - mLastDownY;
-//                int calendarItemRowHeight = mCalendarView.getCalendarViewDelegate().getCalendarItemRowHeight();
-//                mContentViewMaxTranslationY = calendarItemRowHeight * (CalendarItemView.MAX_ROW - 1);
-                ////RecyclerView在月视图下的最大位移距 == MonthView的高 - WeekView的高
-                if (mCalendarView.getCalendarType() == CalendarView.TYPE_MONTH) {
-                    if (dy > 0) {
-                        if (mContentView.getTranslationY() + dy > 0) {
-                            mContentView.setTranslationY(0);
-                        } else {
-                            mContentView.setTranslationY(mContentView.getTranslationY() + dy);
-                        }
-                        //这个判断的目的是要保证下滑的时候要优先使ContentView滑动到日历的下方之后，再滑动MonthPager
-                        if (mMonthPager.getTranslationY() <= mContentView.getTranslationY()) {
-                            mMonthPager.setTranslationY(mContentView.getTranslationY());
-                        }
-                    } else {
-                        //上滑
-                        CalendarItemView calendarItemView = mCalendarView.getCurrentCalendarItemView();
-                        if (calendarItemView == null) {
-                            return false;
-                        }
-                        int selectedItemTop = calendarItemView.getSelectedItemTop();
-                        if (-mMonthPager.getTranslationY() >= selectedItemTop &&
-                                -mContentView.getTranslationY() >= mContentViewMaxTranslationY) {
-                            mContentView.setTranslationY(0);
-                            mCalendarView.setTypeToWeek();
-                            return false;
-                        }
-
-                        if (-mContentView.getTranslationY() < mContentViewMaxTranslationY) {
-                            mContentView.setTranslationY(Math.max(mContentView.getTranslationY() + dy, -mContentViewMaxTranslationY));
-                        }
-                        //上滑MonthPager的界限 == selectedItem的纵轴顶部坐标
-                        if (-mMonthPager.getTranslationY() < selectedItemTop) {
-                            mMonthPager.setTranslationY(mContentView.getTranslationY());
-                        } else {
-                            mMonthPager.setTranslationY(-selectedItemTop);
-                        }
-                    }
-                } else {
-                    if (dy > 0) {
-                        if (mContentView.getTranslationY() == 0 && isScrollToTop()) {
-                            hideWeek();
-                            CalendarItemView calendarItemView = mCalendarView.getCurrentCalendarItemView();
-                            if (calendarItemView != null) {
-                                mMonthPager.setTranslationY(-calendarItemView.getSelectedItemTop());
-                                mContentView.setTranslationY(-mContentViewMaxTranslationY);
-                            }
-                        } else {
-                            mContentView.onTouchEvent(event);
-                        }
-                    } else {
-                        mContentView.onTouchEvent(event);
+                float dy = y - mMoveY;
+                mMoveY = y;
+                float contentViewTransY = mContentView.getTranslationY();
+                //当ContentView 没有滑动到顶部或者已经滑动到周模式还继续上滑时让Content滑动
+                if (!isScrollToTop() || (dy < 0 && mMonthPager.getVisibility() != VISIBLE)) {
+                    return mContentView.onTouchEvent(event);
+                }
+                //
+                //向上滑动，并且contentView已经平移到最大距离，则切换到周模式
+                if (dy < 0 && contentViewTransY == -mContentViewMaxTranslationY) {
+                    showWeek();
+                    return true;
+                }
+                if (dy > 0 && contentViewTransY == 0) {
+                    //周模式和月模式的contentViewTransY都为0，需要根据MonthPager是否显示判断
+                    if (mMonthPager.getVisibility() == VISIBLE) {
+                        mCalendarView.setTypeToMonth();
+                    } else {    //在周模式下拉
+                        hideWeek();
                     }
                 }
-                mLastDownY = y;
+                scrollChild(dy);
                 return true;
             case MotionEvent.ACTION_UP:
-                //如果 > 0 意味着没有滚动完成
-                if (mCalendarView.getCalendarType() == CalendarView.TYPE_MONTH &&
-                        mContentView.getTranslationY() < 0) {
-                    if (mContentView.getTranslationY() > -100) {
+                if (mContentView.getTranslationY() == 0) {
+                    return true;
+                }
+                //如果 mContentView.getTranslationY() != 0 意味着没有滚动完成
+                float moveY = event.getY() - mLastDownY;
+                int type = mCalendarView.getCalendarType();
+                if (type == CalendarView.TYPE_MONTH) {
+                    if (moveY < -100) {
+                        shrink();
+                    } else {
+                        expand();
+                    }
+                } else {
+                    if (moveY > 100) {
                         expand();
                     } else {
                         shrink();
                     }
                 }
-                break;
+                return true;
         }
         return super.onTouchEvent(event);
     }
 
+    private void scrollChild(float dy) {
+        //手指下滑
+        if (dy > 0) {
+            if (mContentView.getTranslationY() + dy > 0) {
+                mContentView.setTranslationY(0);
+            } else {
+                mContentView.setTranslationY(mContentView.getTranslationY() + dy);
+            }
+            //这个判断的目的是要保证下滑的时候要优先使ContentView滑动到日历的下方之后，再滑动MonthPager
+            if (mMonthPager.getTranslationY() <= mContentView.getTranslationY()) {
+                mMonthPager.setTranslationY(mContentView.getTranslationY());
+            }
+        } else if (dy < 0) {    //手指上滑
+            if (-mContentView.getTranslationY() < mContentViewMaxTranslationY) {
+                mContentView.setTranslationY(Math.max(mContentView.getTranslationY() + dy, -mContentViewMaxTranslationY));
+            }
+            //上滑MonthPager的界限 == selectedItem的纵轴顶部坐标
+            if (mMonthPager.getTranslationY() + dy > -mMonthViewSelectedItemTop) {
+                mMonthPager.setTranslationY(mContentView.getTranslationY());
+            } else {
+                mMonthPager.setTranslationY(-mMonthViewSelectedItemTop);
+            }
+        }
+    }
+
     private void hideWeek() {
-        mCalendarView.getWeekPager().setVisibility(GONE);
         mCalendarView.getMonthPager().setVisibility(VISIBLE);
+        mCalendarView.scrollToSelectedDate();
+        updateSelectedItemTop();
+        CalendarItemView calendarItemView = mMonthPager.findViewWithTag(mMonthPager.getCurrentItem());
+        if (calendarItemView != null) {
+            mMonthPager.setTranslationY(-calendarItemView.getSelectedItemTop());
+            mContentView.setTranslationY(-mContentViewMaxTranslationY);
+        }
+        mCalendarView.getWeekPager().setVisibility(GONE);
+    }
+
+    private void showWeek() {
+        mContentView.setTranslationY(0);
+        mCalendarView.getMonthPager().setVisibility(GONE);
+        mCalendarView.getWeekPager().setVisibility(VISIBLE);
+        mCalendarView.setTypeToWeek();
+        mCalendarView.scrollToSelectedDate();
     }
 
     public void expand() {
+        mContentView.setOverScrollMode(mContentViewOverScrollMode);
         if (mIsAnimating) {
             return;
         }
@@ -253,15 +299,12 @@ public class CalendarLayout extends LinearLayout {
         objectAnimator.start();
     }
 
-    public  void shrink() {
+    public void shrink() {
+        mContentView.setOverScrollMode(mContentViewOverScrollMode);
         if (mIsAnimating) {
             return;
         }
-        CalendarItemView calendarItemView = mCalendarView.getCurrentCalendarItemView();
-        if (calendarItemView == null) {
-            return;
-        }
-        final int selectedItemTop = calendarItemView.getSelectedItemTop();
+
         mIsAnimating = true;
         ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(mContentView,
                 "translationY", mContentView.getTranslationY(), -mContentViewMaxTranslationY);
@@ -270,10 +313,10 @@ public class CalendarLayout extends LinearLayout {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float currentValue = (Float) animation.getAnimatedValue();
-                if (currentValue > -selectedItemTop) {
+                if (currentValue > -mMonthViewSelectedItemTop) {
                     mMonthPager.setTranslationY(currentValue);
                 } else {
-                    mMonthPager.setTranslationY(-selectedItemTop);
+                    mMonthPager.setTranslationY(-mMonthViewSelectedItemTop);
                 }
             }
         });
@@ -282,8 +325,7 @@ public class CalendarLayout extends LinearLayout {
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 mIsAnimating = false;
-                mContentView.setTranslationY(0);
-                mCalendarView.setTypeToWeek();
+                showWeek();
             }
         });
         objectAnimator.start();

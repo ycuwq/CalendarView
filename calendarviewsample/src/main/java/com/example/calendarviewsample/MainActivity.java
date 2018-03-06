@@ -10,11 +10,10 @@ import android.widget.TextView;
 
 import com.ycuwq.calendarview.CalendarLayout;
 import com.ycuwq.calendarview.CalendarView;
+import com.ycuwq.calendarview.Date;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
     
@@ -36,11 +35,13 @@ public class MainActivity extends AppCompatActivity {
                 holder.getRootView().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (calendarView.getCalendarType() == CalendarView.TYPE_MONTH) {
-                            calendarView.setTypeToWeek();
-                        } else {
-                            calendarView.setTypeToMonth();
-                        }
+                        calendarView.setSchemes(getSchemes());
+
+//                        if (calendarView.getCalendarType() == CalendarView.TYPE_MONTH) {
+//                            calendarView.setTypeToWeek();
+//                        } else {
+//                            calendarView.setTypeToMonth();
+//                        }
                     }
                 });
             }
@@ -54,7 +55,17 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+    }
 
-
+    private List<Date> getSchemes() {
+        List<Date> dates = new ArrayList<>();
+        for (int i = 1; i < 20; i++) {
+            dates.add(new Date(2018, 3, i));
+            dates.add(new Date(2018, 4, i));
+            dates.add(new Date(2018, 5, i));
+            dates.add(new Date(2018, 6, i));
+            dates.add(new Date(2018, 7, i));
+        }
+        return dates;
     }
 }

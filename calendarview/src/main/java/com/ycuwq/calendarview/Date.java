@@ -27,6 +27,12 @@ public class Date {
 	private String lunarHoliday;     //农历节日
 	private int type;               //类型，0 - 当月，-1 - 上月， 1 - 下月；
 	private String term;            //节气
+
+    /**
+     * 标记
+     */
+	private boolean scheme;
+
 	public Date() {
 	}
 
@@ -158,8 +164,15 @@ public class Date {
 		}
 	}
 
+    public boolean isScheme() {
+        return scheme;
+    }
 
-	@Override
+    public void setScheme(boolean scheme) {
+        this.scheme = scheme;
+    }
+
+    @Override
 	public String toString() {
 		DecimalFormat decimalFormat = new DecimalFormat();
 		decimalFormat.applyPattern("00");
