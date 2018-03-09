@@ -11,9 +11,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-import com.ycuwq.calendarview.utils.DensityUtil;
-
 import java.util.List;
+
+import timber.log.Timber;
 
 /**
  * MonthView和WeekView的基类
@@ -57,7 +57,6 @@ class CalendarItemView extends View {
 
     private int mSelectedItemPosition = -1;
 
-    private float mShemeRadius;
 
     public CalendarItemView(Context context, @NonNull CalendarViewDelegate calendarViewDelegate) {
         super(context);
@@ -65,7 +64,7 @@ class CalendarItemView extends View {
         initPaint();
         mDrawnRect = new Rect();
         mTouchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-        mShemeRadius = DensityUtil.dp2px(context, 2);
+        super.setBackgroundColor(mCalendarViewDelegate.getBackgroundColor());
     }
 
     public void setDateList(List<Date> dates) {
@@ -131,7 +130,7 @@ class CalendarItemView extends View {
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.DITHER_FLAG | Paint.LINEAR_TEXT_FLAG);
         mPaint.setStyle(Paint.Style.FILL);
         mPaint.setTextAlign(Paint.Align.CENTER);
-        mPaint.setTextSize(mCalendarViewDelegate.getTextSizeTop());
+        mPaint.setTextSize(mCalendarViewDelegate.getTopTextSize());
     }
 
 
@@ -207,15 +206,14 @@ class CalendarItemView extends View {
         } else {
             mItemHeight = mDrawnRect.height() / MAX_ROW;
         }
-        if (mCalendarViewDelegate.getCalendarItemRowHeight() != mItemHeight) {
-            mCalendarViewDelegate.setCalendarItemRowHeight(mItemHeight);
-        }
+
         mFirstItemDrawX = mItemWidth / 2;
         mFirstItemDrawY = (int) ((mItemHeight - (mPaint.ascent() + mPaint.descent())) / 2);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
+        Timber.d("onDraw");
         super.onDraw(canvas);
         mItemHeightSpace = (MAX_ROW - mRow) * mItemHeight / mRow;
         if (mSelectedItemPosition >= 0 && mSelectedItemPosition < mDates.size()) {
@@ -230,20 +228,20 @@ class CalendarItemView extends View {
         }
         mPaint.setTextAlign(Paint.Align.CENTER);
         mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setTextSize(mCalendarViewDelegate.getTextSizeTop());
+        mPaint.setTextSize(mCalendarViewDelegate.getTopTextSize());
         for (int i = 0; i < mDates.size(); i++) {
             int row = i / MAX_COLUMN;
             int column = i % MAX_COLUMN;
             Date date = mDates.get(i);
-            mPaint.setTextSize(mCalendarViewDelegate.getTextSizeTop());
+            mPaint.setTextSize(mCalendarViewDelegate.getTopTextSize());
             if (i == mSelectedItemPosition) {
                 //设置点击样式
                 mPaint.setColor(mCalendarViewDelegate.getSelectedTextColor());
             } else if (date.getType() == Date.TYPE_THIS_MONTH || mRow == 1) { //mRow==1为周模式，周模式不选择改变样式。
-                mPaint.setColor(mCalendarViewDelegate.getTextColorTop());
+                mPaint.setColor(mCalendarViewDelegate.getTopTextColor());
             } else {
                 //将非当月的Item样式为Bottom的样式，与当月的区分
-                mPaint.setColor(mCalendarViewDelegate.getTextColorBottom());
+                mPaint.setColor(mCalendarViewDelegate.getBottomTextColor());
             }
             int itemDrawX = mFirstItemDrawX + column * mItemWidth;
             int itemDrawY = mFirstItemDrawY + row * (mItemHeight + mItemHeightSpace);
@@ -252,8 +250,8 @@ class CalendarItemView extends View {
             //绘制Bottom的文字
             if (mSelectedItemPosition != i &&
                     (mCalendarViewDelegate.isShowLunar() || mCalendarViewDelegate.isShowHoliday())) {
-                mPaint.setColor(mCalendarViewDelegate.getTextColorBottom());
-                mPaint.setTextSize(mCalendarViewDelegate.getTextSizeBottom());
+                mPaint.setColor(mCalendarViewDelegate.getBottomTextColor());
+                mPaint.setTextSize(mCalendarViewDelegate.getBottomTextSize());
                 String text = null;
                 if (mCalendarViewDelegate.isShowLunar()) {
                     text = date.getLunarDay();
@@ -279,7 +277,7 @@ class CalendarItemView extends View {
                 } else {
                     mPaint.setColor(mCalendarViewDelegate.getSchemeColor());
                 }
-                canvas.drawCircle(itemDrawX, schemeDrawY, mShemeRadius, mPaint);
+                canvas.drawCircle(itemDrawX, schemeDrawY, mCalendarViewDelegate.getSchemeRadius(), mPaint);
             }
 
         }

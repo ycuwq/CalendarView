@@ -1,8 +1,8 @@
 package com.example.calendarviewsample;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
                 holder.getRootView().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        calendarView.setSchemes(getSchemes());
+                        calendarView.setBottomTextColor(Color.WHITE);
 
 //                        if (calendarView.getCalendarType() == CalendarView.TYPE_MONTH) {
 //                            calendarView.setTypeToWeek();
@@ -48,13 +48,13 @@ public class MainActivity extends AppCompatActivity {
         };
         List<String> strings = new ArrayList<>();
         for (int i = 0; i < 50; i++) {
-            strings.add("列表项 "+ i);
+            strings.add("Item "+ i);
         }
         adapter.setList(strings);
-
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
+        calendarView.setSchemes(getSchemes());
     }
 
     private List<Date> getSchemes() {

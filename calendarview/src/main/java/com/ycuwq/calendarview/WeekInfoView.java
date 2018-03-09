@@ -3,8 +3,6 @@ package com.ycuwq.calendarview;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.support.annotation.ColorInt;
 import android.text.TextPaint;
 import android.view.View;
 
@@ -22,22 +20,20 @@ public class WeekInfoView extends View {
 
 	private String[] mWeekArray = {"一", "二", "三", "四", "五", "六", "日"};
 	private TextPaint mTextPaint;
-	private @ColorInt int mTextColor = Color.BLACK;
-	private @ColorInt int mBackgroundColor = Color.WHITE;
-	private int mTextSize = 14;
+
     private CalendarViewDelegate mDelegate;
 	public WeekInfoView(Context context, CalendarViewDelegate delegate) {
 		super(context);
 		mDelegate = delegate;
         initPaint();
-        super.setBackgroundColor(mBackgroundColor);
+        super.setBackgroundColor(mDelegate.getWeekInfoBackgroundColor());
 	}
 
 
 	private void initPaint() {
 		mTextPaint = new TextPaint();
-		mTextPaint.setTextSize(DensityUtil.sp2px(getContext(), mTextSize));
-		mTextPaint.setColor(mTextColor);
+		mTextPaint.setTextSize(mDelegate.getWeekInfoTextSize());
+		mTextPaint.setColor(mDelegate.getWeekInfoTextColor());
 		mTextPaint.setAntiAlias(true);
 	}
 
@@ -81,36 +77,5 @@ public class WeekInfoView extends View {
 
 	public void setWeekArray(String[] mWeekArray) {
 		this.mWeekArray = mWeekArray;
-	}
-
-	public int getTextColor() {
-		return mTextColor;
-	}
-
-	public void setTextColor(int textColor) {
-		this.mTextColor = textColor;
-		mTextPaint.setColor(textColor);
-		invalidate();
-	}
-
-	public int getBackgroundColor() {
-		return mBackgroundColor;
-	}
-
-	@Override
-	public void setBackgroundColor(int backgroundColor) {
-		this.mBackgroundColor = backgroundColor;
-		super.setBackgroundColor(backgroundColor);
-		invalidate();
-	}
-
-	public int getTextSize() {
-		return mTextSize;
-	}
-
-	public void setTextSize(int textSize) {
-		this.mTextSize = mTextSize;
-		mTextPaint.setTextSize(DensityUtil.sp2px(getContext(), textSize));
-		invalidate();
 	}
 }

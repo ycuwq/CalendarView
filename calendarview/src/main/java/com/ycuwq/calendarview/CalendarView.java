@@ -1,6 +1,7 @@
 package com.ycuwq.calendarview;
 
 import android.content.Context;
+import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -83,8 +84,7 @@ public class CalendarView extends ViewGroup {
 
     public CalendarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        mCalendarViewDelegate = new CalendarViewDelegate();
-
+        mCalendarViewDelegate = new CalendarViewDelegate(context, attrs);
         mCalendarViewDelegate.setOnInnerDateSelectedListener(new OnInnerDateSelectedListener() {
             @Override
             public void onDateSelected(Date date) {
@@ -96,6 +96,7 @@ public class CalendarView extends ViewGroup {
                 }
             }
         });
+
         initChild();
         setDateToCurrent();
         mWeekPager.setVisibility(INVISIBLE);
@@ -285,7 +286,80 @@ public class CalendarView extends ViewGroup {
             scrollMonthToDate(year, month, day, false);
             scrollWeekToDate(year, month, day, smoothScroll);
         }
+    }
 
+    private void updateCalendar() {
+        mWeekPager.postInvalidate();
+        mMonthPager.postInvalidate();
+    }
+
+    public void setShowLunar(boolean showLunar) {
+        mCalendarViewDelegate.setShowLunar(showLunar);
+        updateCalendar();
+    }
+
+    public void setShowHoliday(boolean showHoliday) {
+        mCalendarViewDelegate.setShowHoliday(showHoliday);
+        updateCalendar();
+    }
+
+    public void setTopTextSize(int textSize) {
+        mCalendarViewDelegate.setTopTextSize(textSize);
+        updateCalendar();
+    }
+
+    public void setTopTextColor(@ColorInt int color) {
+        mCalendarViewDelegate.setTopTextColor(color);
+        updateCalendar();
+    }
+
+    public void setBottomTextSize(int textSize) {
+        mCalendarViewDelegate.setBottomTextSize(textSize);
+        updateCalendar();
+    }
+
+    public void setBottomTextColor(@ColorInt int color) {
+        mCalendarViewDelegate.setBottomTextColor(color);
+        updateCalendar();
+    }
+
+    public void setSelectedItemColor(@ColorInt int color) {
+        mCalendarViewDelegate.setSelectedItemColor(color);
+        updateCalendar();
+    }
+
+    public void setSelectedTextColor(@ColorInt int color) {
+        mCalendarViewDelegate.setSelectedTextColor(color);
+        updateCalendar();
+    }
+
+    public void setSchemeColor(@ColorInt int color) {
+        mCalendarViewDelegate.setSchemeColor(color);
+        updateCalendar();
+    }
+
+    public void setSchemeRadius(int radius) {
+        mCalendarViewDelegate.setSchemeRadius(radius);
+        updateCalendar();
+    }
+
+    public void setSelectedSchemeColor(@ColorInt int color) {
+        mCalendarViewDelegate.setSelectedSchemeColor(color);
+    }
+
+    public void setWeekInfoBackgroundColor(@ColorInt int color) {
+        mCalendarViewDelegate.setWeekInfoBackgroundColor(color);
+        mWeekInfoView.postInvalidate();
+    }
+
+    public void setWeekInfoTextSize(int weekInfoTextSize) {
+        mCalendarViewDelegate.setWeekInfoTextSize(weekInfoTextSize);
+        mWeekInfoView.postInvalidate();
+    }
+
+    public void setWeekInfoTextColor(@ColorInt int color) {
+        mCalendarViewDelegate.setWeekInfoTextColor(color);
+        mWeekInfoView.postInvalidate();
     }
 
     public interface OnInnerDateSelectedListener {

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="CalendarView">
+        <!--是否显示农历-->
+        <attr name="showLunar" format="boolean"/>
+        <!--是否显示节假日-->
+        <attr name="showHoliday" format="boolean" />
+
+        <attr name="topTextSize" format="dimension"/>
+        <attr name="topTextColor" format="color" />
+        <attr name="bottomTextSize" format="dimension"/>
+        <attr name="bottomTextColor" format="color"/>
+        <attr name="selectedItemColor" format="color"/>
+        <attr name="selectedItemTextColor" format="color"/>
+        <attr name="selectedSchemeColor" format="color"/>
+        <attr name="schemeColor" format="color"/>
+        <attr name="schemeRadius" format="dimension"/>
+        <attr name="monthBackgroundColor" format="color"/>
+        <attr name="weekInfoBackgroundColor" format="color"/>
+        <attr name="weekInfoTextSize" format="dimension"/>
+        <attr name="weekInfoTextColor" format="color"/>
+        <attr name="startYear" format="integer"/>
+        <attr name="startMonth" format="integer"/>
+
+    </declare-styleable>
+</resources>
