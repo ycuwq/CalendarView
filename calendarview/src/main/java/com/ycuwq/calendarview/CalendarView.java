@@ -18,6 +18,7 @@ import java.util.List;
  * 日历的主体类
  * Created by ycuwq on 2018/2/11.
  */
+@SuppressWarnings("unused")
 public class CalendarView extends ViewGroup {
 
     public static final int TYPE_MONTH = 0;
@@ -223,7 +224,7 @@ public class CalendarView extends ViewGroup {
 
     /**
      * 设置日历模式
-     * @param calendarType
+     * @param calendarType TYPE_MONTH 或则 TYPE_WEEK
      */
     public void setCalendarType(int calendarType) {
         if (calendarType == TYPE_MONTH) {
@@ -289,8 +290,11 @@ public class CalendarView extends ViewGroup {
     }
 
     private void updateCalendar() {
-        mWeekPager.postInvalidate();
-        mMonthPager.postInvalidate();
+        CalendarItemView calendarItemView = getCurrentCalendarItemView();
+        if (calendarItemView != null) {
+            calendarItemView.postInvalidate();
+        }
+
     }
 
     public void setShowLunar(boolean showLunar) {

@@ -13,8 +13,6 @@ import android.view.ViewConfiguration;
 
 import java.util.List;
 
-import timber.log.Timber;
-
 /**
  * MonthView和WeekView的基类
  * Created by ycuwq on 2018/2/23.
@@ -213,7 +211,6 @@ class CalendarItemView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Timber.d("onDraw");
         super.onDraw(canvas);
         mItemHeightSpace = (MAX_ROW - mRow) * mItemHeight / mRow;
         if (mSelectedItemPosition >= 0 && mSelectedItemPosition < mDates.size()) {

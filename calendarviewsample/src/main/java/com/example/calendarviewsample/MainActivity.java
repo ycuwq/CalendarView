@@ -35,13 +35,11 @@ public class MainActivity extends AppCompatActivity {
                 holder.getRootView().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        calendarView.setBottomTextColor(Color.WHITE);
-
-//                        if (calendarView.getCalendarType() == CalendarView.TYPE_MONTH) {
-//                            calendarView.setTypeToWeek();
-//                        } else {
-//                            calendarView.setTypeToMonth();
-//                        }
+                        if (calendarView.getCalendarType() == CalendarView.TYPE_MONTH) {
+                            calendarView.setTypeToWeek();
+                        } else {
+                            calendarView.setTypeToMonth();
+                        }
                     }
                 });
             }

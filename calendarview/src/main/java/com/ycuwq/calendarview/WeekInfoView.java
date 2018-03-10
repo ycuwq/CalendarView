@@ -58,6 +58,8 @@ public class WeekInfoView extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
+		mTextPaint.setTextSize(mDelegate.getWeekInfoTextSize());
+		mTextPaint.setColor(mDelegate.getWeekInfoTextColor());
 		int itemWidth = getWidth() / 7;
 		int itemHeight = getHeight();
 

@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply plugin: 'com.novoda.bintray-release'
 android {
     compileSdkVersion 27
 
@@ -31,6 +31,15 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:0.5'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:2.2.2'
+}
 
-    implementation 'com.jakewharton.timber:timber:4.6.1'
+publish {
+    userOrg = 'ycuwq'//
+    repoName = 'android'
+    groupId = 'com.ycuwq.widgets'
+    artifactId = 'calendarView'
+    publishVersion = '1.0.0'
+    desc = 'Android calendar view'
+    website = 'https://github.com/ycuwq/CalendarView'
+    licences = ['MIT']
 }
