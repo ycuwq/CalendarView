@@ -1,6 +1,5 @@
 package com.example.calendarviewsample;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -45,11 +44,10 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         List<String> strings = new ArrayList<>();
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 1; i++) {
             strings.add("Item "+ i);
         }
         adapter.setList(strings);
-//        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
         calendarView.setSchemes(getSchemes());

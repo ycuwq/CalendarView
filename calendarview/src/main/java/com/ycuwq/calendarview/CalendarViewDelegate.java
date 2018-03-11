@@ -34,7 +34,7 @@ class CalendarViewDelegate {
 
     private @ColorInt int mSelectedTextColor;
 
-    private CalendarView.OnInnerDateSelectedListener mOnInnerDateSelectedListener;
+    private CalendarView.OnDateSelectedListener mOnInnerDateSelectedListener;
 
     private List<Date> mSchemes;
 
@@ -155,11 +155,11 @@ class CalendarViewDelegate {
         mSelectedTextColor = selectedTextColor;
     }
 
-    public CalendarView.OnInnerDateSelectedListener getOnInnerDateSelectedListener() {
+    public CalendarView.OnDateSelectedListener getOnInnerDateSelectedListener() {
         return mOnInnerDateSelectedListener;
     }
 
-    public void setOnInnerDateSelectedListener(CalendarView.OnInnerDateSelectedListener onInnerDateSelectedListener) {
+    public void setOnInnerDateSelectedListener(CalendarView.OnDateSelectedListener onInnerDateSelectedListener) {
         mOnInnerDateSelectedListener = onInnerDateSelectedListener;
     }
 

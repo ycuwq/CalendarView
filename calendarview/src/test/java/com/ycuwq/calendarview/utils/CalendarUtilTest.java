@@ -13,34 +13,6 @@ public class CalendarUtilTest {
 
 
     @Test
-    public void getDate() throws Exception {
-    }
-
-    @Test
-    public void getMonthOfWeekDate1() throws Exception {
-    }
-
-    @Test
-    public void getMonthOfWeekDate2() throws Exception {
-    }
-
-    @Test
-    public void getWeekDates() throws Exception {
-    }
-
-    @Test
-    public void getDayForWeek() throws Exception {
-    }
-
-    @Test
-    public void positionToDate() throws Exception {
-    }
-
-    @Test
-    public void getMonthPosition() throws Exception {
-    }
-
-    @Test
     public void getMonthDates() throws Exception {
         List<Date> dates = CalendarUtil.getMonthDates(2018, 7);
         assertEquals(42, dates.size());
@@ -70,7 +42,7 @@ public class CalendarUtilTest {
         assertEquals(5, lists2.size());
 
         List<List<Date>> lists3 = CalendarUtil.getMonthOfWeekDates(2018, 1);
-        assertEquals(6, lists3.size());
+        assertEquals(5, lists3.size());
     }
 
     @Test

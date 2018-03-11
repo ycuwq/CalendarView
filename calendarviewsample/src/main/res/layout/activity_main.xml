@@ -10,13 +10,14 @@
         android:id="@+id/calendarLayout"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
         <com.ycuwq.calendarview.CalendarView
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerView"
+            android:background="@color/colorText"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </com.ycuwq.calendarview.CalendarLayout>

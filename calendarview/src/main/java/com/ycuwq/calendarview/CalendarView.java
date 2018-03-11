@@ -31,6 +31,8 @@ public class CalendarView extends ViewGroup {
     private WeekInfoView mWeekInfoView;
     private int mCalendarType = 0;
 
+    private OnDateSelectedListener mOnDateSelectedListener;
+
     private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -86,7 +88,7 @@ public class CalendarView extends ViewGroup {
     public CalendarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         mCalendarViewDelegate = new CalendarViewDelegate(context, attrs);
-        mCalendarViewDelegate.setOnInnerDateSelectedListener(new OnInnerDateSelectedListener() {
+        mCalendarViewDelegate.setOnInnerDateSelectedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(Date date) {
                 mCalendarViewDelegate.setSelectedDate(date);
@@ -94,6 +96,9 @@ public class CalendarView extends ViewGroup {
                     scrollMonthToDate(date.getYear(), date.getMonth(), date.getDay(), false);
                 } else {
                     scrollWeekToDate(date.getYear(), date.getMonth(), date.getDay(), false);
+                }
+                if (mOnDateSelectedListener != null) {
+                    mOnDateSelectedListener.onDateSelected(date);
                 }
             }
         });
@@ -264,7 +269,7 @@ public class CalendarView extends ViewGroup {
 
     /**
      * 设置事项标记
-     * @param schemes
+     * @param schemes 事件标记列表
      */
     public void setSchemes(List<Date> schemes) {
         mCalendarViewDelegate.setSchemes(schemes);
@@ -366,7 +371,12 @@ public class CalendarView extends ViewGroup {
         mWeekInfoView.postInvalidate();
     }
 
-    public interface OnInnerDateSelectedListener {
+    public void setOnDateSelectedListener(OnDateSelectedListener onDateSelectedListener) {
+        mOnDateSelectedListener = onDateSelectedListener;
+    }
+
+    public interface OnDateSelectedListener {
         void onDateSelected(Date date);
     }
+
 }
