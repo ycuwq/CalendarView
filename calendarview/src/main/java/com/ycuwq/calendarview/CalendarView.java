@@ -95,6 +95,10 @@ public class CalendarView extends ViewGroup {
                 if (mCalendarType == TYPE_WEEK) {
                     scrollMonthToDate(date.getYear(), date.getMonth(), date.getDay(), false);
                 } else {
+                    if (date.getType() != Date.TYPE_THIS_MONTH) {
+                        scrollMonthToDate(date.getYear(), date.getMonth(), date.getDay(), true);
+                        return;
+                    }
                     scrollWeekToDate(date.getYear(), date.getMonth(), date.getDay(), false);
                 }
                 if (mOnDateSelectedListener != null) {

@@ -60,11 +60,11 @@ class CalendarViewDelegate {
         mShowLunar = a.getBoolean(R.styleable.CalendarView_showLunar, true);
         mShowHoliday = a.getBoolean(R.styleable.CalendarView_showHoliday, true);
         mTopTextSize = a.getDimensionPixelSize(R.styleable.CalendarView_topTextSize,
-                DensityUtil.dp2px(context, 16));
+                DensityUtil.sp2px(context, 16));
         mTopTextColor = a.getColor(R.styleable.CalendarView_topTextColor, Color.BLACK);
 
         mBottomTextSize = a.getDimensionPixelSize(R.styleable.CalendarView_bottomTextSize,
-                DensityUtil.dp2px(context, 12));
+                DensityUtil.sp2px(context, 10));
         mBottomTextColor = a.getColor(R.styleable.CalendarView_bottomTextColor, Color.parseColor("#999999"));
         mSelectedItemColor = a.getColor(R.styleable.CalendarView_selectedItemColor, Color.GRAY);
         mSelectedTextColor = a.getColor(R.styleable.CalendarView_selectedItemTextColor, Color.WHITE);
@@ -79,7 +79,7 @@ class CalendarViewDelegate {
         mWeekInfoBackgroundColor = a.getColor(R.styleable.CalendarView_weekInfoBackgroundColor, Color.WHITE);
         mWeekInfoTextColor = a.getColor(R.styleable.CalendarView_weekInfoTextColor, Color.BLACK);
         mWeekInfoTextSize = a.getColor(R.styleable.CalendarView_weekInfoTextSize,
-                DensityUtil.dp2px(context, 16));
+                DensityUtil.sp2px(context, 16));
         a.recycle();
     }
 

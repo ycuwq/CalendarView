@@ -13,7 +13,7 @@
         android:layout_height="match_parent">
         <com.ycuwq.calendarview.CalendarView
             android:id="@+id/calendarView"
-            app:bottomTextSize="12sp"
+            app:bottomTextSize="10sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
         <android.support.v7.widget.RecyclerView
