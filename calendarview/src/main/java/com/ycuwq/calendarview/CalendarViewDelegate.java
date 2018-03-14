@@ -8,8 +8,6 @@ import android.util.AttributeSet;
 
 import com.ycuwq.calendarview.utils.DensityUtil;
 
-import java.util.List;
-
 /**
  * 由于View的样式参数传递的层级太多，这里包装了CalendarView的参数，方便传递。
  * Created by yangchen on 2017/6/21.
@@ -35,8 +33,6 @@ class CalendarViewDelegate {
     private @ColorInt int mSelectedTextColor;
 
     private CalendarView.OnDateSelectedListener mOnInnerDateSelectedListener;
-
-    private List<Date> mSchemes;
 
     private @ColorInt int mSchemeColor;
 
@@ -161,14 +157,6 @@ class CalendarViewDelegate {
 
     public void setOnInnerDateSelectedListener(CalendarView.OnDateSelectedListener onInnerDateSelectedListener) {
         mOnInnerDateSelectedListener = onInnerDateSelectedListener;
-    }
-
-    public List<Date> getSchemes() {
-        return mSchemes;
-    }
-
-    public void setSchemes(List<Date> schemes) {
-        mSchemes = schemes;
     }
 
     public int getSchemeColor() {

@@ -144,6 +144,7 @@ public class CalendarLayout extends LinearLayout {
                 mMoveY = mLastDownY = y;
                 break;
             case MotionEvent.ACTION_MOVE:
+
                 float dy = y - mMoveY;
                 if (Math.abs(dy) < mTouchSlop) {
                     return false;

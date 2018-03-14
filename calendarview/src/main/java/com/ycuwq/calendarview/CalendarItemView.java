@@ -54,8 +54,7 @@ class CalendarItemView extends View {
     private float mTouchDownX, mTouchDownY;
 
     private int mSelectedItemPosition = -1;
-
-
+    private List<Date> mSchemes;
     public CalendarItemView(Context context, @NonNull CalendarViewDelegate calendarViewDelegate) {
         super(context);
         mCalendarViewDelegate = calendarViewDelegate;
@@ -82,7 +81,7 @@ class CalendarItemView extends View {
         }
         mDates = dates;
         mRow = mDates.size() / MAX_COLUMN;
-        updateScheme();
+        mSchemes = null;
         requestLayout();
     }
 
@@ -112,13 +111,15 @@ class CalendarItemView extends View {
         return -1;
     }
 
-    public void updateScheme() {
-        if (mCalendarViewDelegate.getSchemes() != null) {
-            for (Date date : mCalendarViewDelegate.getSchemes()) {
-                int index = indexThisView(date);
-                if (index > -1) {
-                    getDates().get(index).setScheme(true);
-                }
+    public void setScheme(List<Date> schemes) {
+        if (mSchemes == schemes) {
+            return;
+        }
+        for (Date date : mDates) {
+            if (schemes != null && schemes.indexOf(date) >= 0) {
+                date.setScheme(true);
+            } else {
+                date.setScheme(false);
             }
         }
         postInvalidate();

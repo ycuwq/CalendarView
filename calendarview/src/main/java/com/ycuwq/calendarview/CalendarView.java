@@ -11,7 +11,6 @@ import com.ycuwq.calendarview.utils.CalendarUtil;
 
 import org.joda.time.LocalDate;
 
-import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -24,16 +23,14 @@ public class CalendarView extends ViewGroup {
     public static final int TYPE_MONTH = 0;
     public static final int TYPE_WEEK = 1;
 
-    private MonthCalendarAdapter mMonthAdapter;
-    private WeekCalendarAdapter mWeekAdapter;
     private CalendarItemPager mWeekPager, mMonthPager;
     private CalendarViewDelegate mCalendarViewDelegate;
     private WeekInfoView mWeekInfoView;
     private int mCalendarType = 0;
 
     private OnDateSelectedListener mOnDateSelectedListener;
-
-    private ViewPager.OnPageChangeListener mOnPageChangeListener = new ViewPager.OnPageChangeListener() {
+    private OnPageSelectedListener mOnPageSelectedListener;
+    private ViewPager.OnPageChangeListener mOnMonthPageChangeListener = new ViewPager.OnPageChangeListener() {
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
@@ -41,39 +38,69 @@ public class CalendarView extends ViewGroup {
 
         @Override
         public void onPageSelected(int position) {
+//            if (getCalendarType() != TYPE_MONTH) {
+//                return;
+//            }
             //切换Page后，将选择的日期变成当前页的日期。
-            CalendarItemView calendarItemView;
-            if (mCalendarType == TYPE_MONTH) {
-                calendarItemView = mMonthPager.findViewWithTag(position);
-            } else {
-                calendarItemView = mWeekPager.findViewWithTag(position);
-            }
+            CalendarItemView calendarItemView = mMonthPager.findViewWithTag(position);
             if (calendarItemView == null) {
                 return;
             }
             Date lastSelectedDate = mCalendarViewDelegate.getSelectedDate();
-            if (getCalendarType() == TYPE_MONTH) {
-                //这里15只要是中间的任意值就可以，目的是保证获取的是当前月份的日期，不是上月或者下月。
-                Date date = calendarItemView.getDates().get(15);
-                int day = lastSelectedDate.getDay();
-                //在翻页的时候有可能会出现之前选中的日期超过当前月的最大天数，如果超过的话选择当前月的最后一天替代。
-                if (lastSelectedDate.getDay() > 28) {
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.set(lastSelectedDate.getYear(), lastSelectedDate.getMonth() - 1, 1);
-                    int maxDayOfMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-                    day = maxDayOfMonth < lastSelectedDate.getDay() ? maxDayOfMonth :
-                            lastSelectedDate.getDay();
-                }
-                calendarItemView.selectDate(new Date(date.getYear(), date.getMonth(), day));
-            } else {
-                //周日期可直接用第几个View跳转。week的范围是1-7，所以减一
-                calendarItemView.selectDate(lastSelectedDate.getWeek() - 1);
+            //这里15只要是中间的任意值就可以，目的是保证获取的是当前月份的日期，不是上月或者下月。
+            Date date = calendarItemView.getDates().get(15);
+            int day = lastSelectedDate.getDay();
+            //在翻页的时候有可能会出现之前选中的日期超过当前月的最大天数，如果超过的话选择当前月的最后一天替代。
+            if (lastSelectedDate.getDay() > 28) {
+                int maxDayOfMonth = CalendarUtil.getMaxDayByYearMonth(date.getYear(), date.getMonth());
+                day = maxDayOfMonth < lastSelectedDate.getDay() ? maxDayOfMonth :
+                        lastSelectedDate.getDay();
+            }
+            calendarItemView.selectDate(new Date(date.getYear(), date.getMonth(), day));
+
+            // TODO: 2018/3/14 增加Scheme的方式是否还可以优化？
+            if (mOnPageSelectedListener != null) {
+                List<Date> scheme = mOnPageSelectedListener.onMonthPageSelected(date.getYear(), date.getMonth());
+                calendarItemView.setScheme(scheme);
             }
         }
 
         @Override
         public void onPageScrollStateChanged(int state) {
+        }
+    };
 
+    private ViewPager.OnPageChangeListener mOnWeekPageChangeListener = new ViewPager.OnPageChangeListener() {
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+//            if (getCalendarType() != TYPE_WEEK) {
+//                return;
+//            }
+            //切换Page后，将选择的日期变成当前页的日期。
+            CalendarItemView calendarItemView = mWeekPager.findViewWithTag(position);
+
+            if (calendarItemView == null) {
+                return;
+            }
+            Date lastSelectedDate = mCalendarViewDelegate.getSelectedDate();
+            //周日期可直接用第几个View跳转。week的范围是1-7，所以减一
+            calendarItemView.selectDate(lastSelectedDate.getWeek() - 1);
+            if (mOnPageSelectedListener != null) {
+                Date mondayDate = calendarItemView.getDates().get(0);
+                List<Date> scheme = mOnPageSelectedListener.onWeekPageSelected(mondayDate.getYear(),
+                        mondayDate.getMonth(), mondayDate.getDay());
+                calendarItemView.setScheme(scheme);
+            }
+
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
         }
     };
 
@@ -95,6 +122,7 @@ public class CalendarView extends ViewGroup {
                 if (mCalendarType == TYPE_WEEK) {
                     scrollMonthToDate(date.getYear(), date.getMonth(), date.getDay(), false);
                 } else {
+                    //在月模式下最上和最下有非当月日期，如果选中的话跳转到当月日期。
                     if (date.getType() != Date.TYPE_THIS_MONTH) {
                         scrollMonthToDate(date.getYear(), date.getMonth(), date.getDay(), true);
                         return;
@@ -133,21 +161,21 @@ public class CalendarView extends ViewGroup {
         addView(mWeekInfoView, 0, layoutParams);
         mWeekInfoView.setTranslationZ(1);
 
-        mMonthAdapter = new MonthCalendarAdapter(20000, mCalendarViewDelegate.getStartYear(),
+        MonthCalendarAdapter monthAdapter = new MonthCalendarAdapter(20000, mCalendarViewDelegate.getStartYear(),
                 mCalendarViewDelegate.getStartMonth(), mCalendarViewDelegate);
         mMonthPager = new CalendarItemPager(getContext());
         mMonthPager.setOffscreenPageLimit(1);
-        mMonthPager.setAdapter(mMonthAdapter);
+        mMonthPager.setAdapter(monthAdapter);
         addView(mMonthPager, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 
         mWeekPager = new CalendarItemPager(getContext());
-        mWeekAdapter = new WeekCalendarAdapter(20000, mCalendarViewDelegate.getStartYear(),
+        WeekCalendarAdapter weekAdapter = new WeekCalendarAdapter(20000, mCalendarViewDelegate.getStartYear(),
                 mCalendarViewDelegate.getStartMonth(), mCalendarViewDelegate);
         mWeekPager.setOffscreenPageLimit(1);
-        mWeekPager.setAdapter(mWeekAdapter);
+        mWeekPager.setAdapter(weekAdapter);
         addView(mWeekPager, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-        mMonthPager.addOnPageChangeListener(mOnPageChangeListener);
-        mWeekPager.addOnPageChangeListener(mOnPageChangeListener);
+        mMonthPager.addOnPageChangeListener(mOnMonthPageChangeListener);
+        mWeekPager.addOnPageChangeListener(mOnWeekPageChangeListener);
     }
 
     @Override
@@ -271,14 +299,11 @@ public class CalendarView extends ViewGroup {
         scrollToSelectedDate();
     }
 
-    /**
-     * 设置事项标记
-     * @param schemes 事件标记列表
-     */
-    public void setSchemes(List<Date> schemes) {
-        mCalendarViewDelegate.setSchemes(schemes);
-        mMonthPager.updateScheme();
-        mWeekPager.updateScheme();
+    public void setSchemesToCurrentView(List<Date> schemes) {
+        CalendarItemView calendarItemView = getCurrentCalendarItemView();
+        if (calendarItemView != null) {
+            calendarItemView.setScheme(schemes);
+        }
     }
 
     /**
@@ -379,8 +404,33 @@ public class CalendarView extends ViewGroup {
         mOnDateSelectedListener = onDateSelectedListener;
     }
 
+    public void setOnPageSelectedListener(OnPageSelectedListener onPageSelectedListener) {
+        mOnPageSelectedListener = onPageSelectedListener;
+    }
+
     public interface OnDateSelectedListener {
         void onDateSelected(Date date);
     }
 
+    /**
+     * 当页切换时监听被调用
+     */
+    public interface OnPageSelectedListener {
+        /**
+         * 当月切换后被调用
+         * @param year 年
+         * @param month 月
+         * @return 返回当前月的Scheme，如没有可以返回null
+         */
+        List<Date> onMonthPageSelected(int year, int month);
+
+        /**
+         * 当周切换后被调用
+         * @param year 年
+         * @param month 月
+         * @param mondayDay 周一的日期
+         * @return 返回当前月的Scheme，如没有可以返回null
+         */
+        List<Date> onWeekPageSelected(int year, int month, int mondayDay);
+    }
 }

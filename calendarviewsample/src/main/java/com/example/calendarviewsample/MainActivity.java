@@ -11,19 +11,58 @@ import com.ycuwq.calendarview.CalendarLayout;
 import com.ycuwq.calendarview.CalendarView;
 import com.ycuwq.calendarview.Date;
 
+import org.joda.time.LocalDate;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     
     private final String TAG = getClass().getSimpleName();
-    
+    private HashMap<String, List<Date>> mScheme;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         CalendarLayout calendarLayout = findViewById(R.id.calendarLayout);
         final CalendarView calendarView = findViewById(R.id.calendarView);
+
+        calendarView.setOnPageSelectedListener(new CalendarView.OnPageSelectedListener() {
+            @Override
+            public List<Date> onMonthPageSelected(final int year, final int month) {
+                if (mScheme != null) {
+                    return mScheme.get(year + "-" + month);
+                }
+                return null;
+            }
+
+            @Override
+            public List<Date> onWeekPageSelected(int year, int month, int mondayDay) {
+                if (mScheme != null) {
+                    List<Date> schemes = new ArrayList<>();
+                    LocalDate monday = new LocalDate(year, month, mondayDay);
+                    Date tempDate = new Date(year, month, mondayDay);
+                    for (int i = 1; i <=7; i++) {
+                        LocalDate localDate = monday.withDayOfWeek(i);
+                        tempDate.setYear(localDate.getYear());
+                        tempDate.setMonth(localDate.getMonthOfYear());
+                        tempDate.setDay(localDate.getDayOfMonth());
+                        List<Date> monthScheme = mScheme.get(localDate.getYear() + "-" + localDate.getMonthOfYear());
+                        if (monthScheme == null) {
+                            continue;
+                        }
+                        int index = monthScheme.indexOf(tempDate);
+                        if (index >= 0) {
+                            schemes.add(monthScheme.get(index));
+                        }
+                    }
+                    return schemes;
+                }
+                return null;
+            }
+        });
+
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         ExRecyclerAdapter<String> adapter = new ExRecyclerAdapter<String>(this,
                 R.layout.item_choose) {
@@ -50,18 +89,17 @@ public class MainActivity extends AppCompatActivity {
         adapter.setList(strings);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
-        calendarView.setSchemes(getSchemes());
+        generateSchemes();
     }
 
-    private List<Date> getSchemes() {
-        List<Date> dates = new ArrayList<>();
-        for (int i = 1; i < 20; i++) {
-            dates.add(new Date(2018, 3, i));
-            dates.add(new Date(2018, 4, i));
-            dates.add(new Date(2018, 5, i));
-            dates.add(new Date(2018, 6, i));
-            dates.add(new Date(2018, 7, i));
+    private void generateSchemes() {
+        mScheme = new HashMap<>();
+        for (int i = 1; i < 12; i++) {
+            List<Date> list = new ArrayList<>();
+            for (int j = 1; j < 28; j++) {
+                list.add(new Date(2018, i, j));
+            }
+            mScheme.put(2018 + "-" + i, list);
         }
-        return dates;
     }
 }

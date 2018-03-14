@@ -42,9 +42,22 @@ dependencies {
 if you want to add scheme:
 
 ```
-List<Date> dates = new ArrayList<>();
-dates.add(new Date(2018, 1, 1));
-calendarView.setSchemes(dates);
+calendarView.setOnPageSelectedListener(new CalendarView.OnPageSelectedListener() {
+    @Override
+    public List<Date> onMonthPageSelected(final int year, final int month) {
+        List<Date> scheme = new ArrayList<>();
+        scheme.add(new Date(year, month, 1));
+        scheme.add(new Date(year, month, 11));
+        return scheme;
+    }
+
+    @Override
+    public List<Date> onWeekPageSelected(int year, int month, int mondayDay) {
+        List<Date> schemes = new ArrayList<>();
+        schemes.add(new Date(year, month, mondayDay));
+        return schemes;
+    }
+});
 ```
 
 

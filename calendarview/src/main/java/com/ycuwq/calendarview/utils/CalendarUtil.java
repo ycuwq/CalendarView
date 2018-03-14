@@ -146,4 +146,16 @@ public class CalendarUtil {
     public static LocalDate getCurrentDate() {
         return new LocalDate();
     }
+
+    public static int getMaxDayByYearMonth(int year,int month) {
+        int maxDay;
+        int day = 1;
+
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(year,month - 1,day);
+
+        maxDay = calendar.getActualMaximum(Calendar.DATE);
+        return maxDay;
+    }
 }

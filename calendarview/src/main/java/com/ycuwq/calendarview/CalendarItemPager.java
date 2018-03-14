@@ -15,17 +15,6 @@ public class CalendarItemPager extends ViewPager {
         super(context);
     }
 
-    void scrollToDate(int year, int month, int date, boolean smoothScroll) {
-
-    }
-
-    void updateScheme() {
-        for (int i = 0; i < getChildCount(); i++) {
-            CalendarItemView view = (CalendarItemView) getChildAt(i);
-            view.updateScheme();
-        }
-    }
-
     /**
      * ViewPager高度不能适应子View的大小，所以重写onMeasure
      */
