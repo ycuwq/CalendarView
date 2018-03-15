@@ -1,13 +1,15 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.novoda.bintray-release'
+
+def libVersionName = '1.0.4'
 android {
     compileSdkVersion 27
 
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 4
-        versionName "1.0.3"
+        versionCode 5
+        versionName libVersionName
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -38,7 +40,7 @@ publish {
     repoName = 'android'
     groupId = 'com.ycuwq.widgets'
     artifactId = 'calendarview'
-    publishVersion = '1.0.3'
+    publishVersion = libVersionName
     desc = 'Android calendar view'
     website = 'https://github.com/ycuwq/CalendarView'
     licences = ['MIT']

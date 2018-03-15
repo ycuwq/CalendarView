@@ -2,6 +2,7 @@ package com.ycuwq.calendarview;
 
 import android.content.Context;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -60,7 +61,8 @@ public class CalendarView extends ViewGroup {
 
             // TODO: 2018/3/14 增加Scheme的方式是否还可以优化？
             if (mOnPageSelectedListener != null) {
-                List<Date> scheme = mOnPageSelectedListener.onMonthPageSelected(date.getYear(), date.getMonth());
+                List<Date> scheme = mOnPageSelectedListener.onPageSelected(new PagerInfo(
+                        date.getYear(), date.getMonth()));
                 calendarItemView.setScheme(scheme);
             }
         }
@@ -92,8 +94,8 @@ public class CalendarView extends ViewGroup {
             calendarItemView.selectDate(lastSelectedDate.getWeek() - 1);
             if (mOnPageSelectedListener != null) {
                 Date mondayDate = calendarItemView.getDates().get(0);
-                List<Date> scheme = mOnPageSelectedListener.onWeekPageSelected(mondayDate.getYear(),
-                        mondayDate.getMonth(), mondayDate.getDay());
+                List<Date> scheme = mOnPageSelectedListener.onPageSelected(new PagerInfo(mondayDate.getYear(),
+                        mondayDate.getMonth(), mondayDate.getDay()));
                 calendarItemView.setScheme(scheme);
             }
 
@@ -418,19 +420,11 @@ public class CalendarView extends ViewGroup {
     public interface OnPageSelectedListener {
         /**
          * 当月切换后被调用
-         * @param year 年
-         * @param month 月
+         * @param pagerInfo 当前的页信息
          * @return 返回当前月的Scheme，如没有可以返回null
          */
-        List<Date> onMonthPageSelected(int year, int month);
+        List<Date> onPageSelected(@NonNull PagerInfo pagerInfo);
 
-        /**
-         * 当周切换后被调用
-         * @param year 年
-         * @param month 月
-         * @param mondayDay 周一的日期
-         * @return 返回当前月的Scheme，如没有可以返回null
-         */
-        List<Date> onWeekPageSelected(int year, int month, int mondayDay);
+
     }
 }

@@ -44,19 +44,21 @@ if you want to add scheme:
 ```
 calendarView.setOnPageSelectedListener(new CalendarView.OnPageSelectedListener() {
     @Override
-    public List<Date> onMonthPageSelected(final int year, final int month) {
-        List<Date> scheme = new ArrayList<>();
-        scheme.add(new Date(year, month, 1));
-        scheme.add(new Date(year, month, 11));
-        return scheme;
+    public List<Date> onPageSelected(@NonNull PagerInfo pagerInfo) {
+        int year = pagerInfo.getYear(), month = pagerInfo.getMonth(), mondayDay = pagerInfo.getMondayDay();
+        if (pagerInfo.getType() == PagerInfo.TYPE_MONTH) {
+            List<Date> scheme = new ArrayList<>();
+            scheme.add(new Date(year, month, 1));
+            scheme.add(new Date(year, month, 11));
+            return scheme;
+        } else {
+            //周模式
+            List<Date> schemes = new ArrayList<>();
+            schemes.add(new Date(year, month, mondayDay));
+            return schemes;
+        }
     }
 
-    @Override
-    public List<Date> onWeekPageSelected(int year, int month, int mondayDay) {
-        List<Date> schemes = new ArrayList<>();
-        schemes.add(new Date(year, month, mondayDay));
-        return schemes;
-    }
 });
 ```
 

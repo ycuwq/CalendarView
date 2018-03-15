@@ -1,6 +1,7 @@
 package com.example.calendarviewsample;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import com.ycuwq.calendarview.CalendarLayout;
 import com.ycuwq.calendarview.CalendarView;
 import com.ycuwq.calendarview.Date;
+import com.ycuwq.calendarview.PagerInfo;
 
 import org.joda.time.LocalDate;
 
@@ -30,20 +32,19 @@ public class MainActivity extends AppCompatActivity {
 
         calendarView.setOnPageSelectedListener(new CalendarView.OnPageSelectedListener() {
             @Override
-            public List<Date> onMonthPageSelected(final int year, final int month) {
-                if (mScheme != null) {
-                    return mScheme.get(year + "-" + month);
+            public List<Date> onPageSelected(@NonNull PagerInfo pagerInfo) {
+                if (mScheme == null) {
+                    return null;
                 }
-                return null;
-            }
-
-            @Override
-            public List<Date> onWeekPageSelected(int year, int month, int mondayDay) {
-                if (mScheme != null) {
+                int year = pagerInfo.getYear(), month = pagerInfo.getMonth(), mondayDay = pagerInfo.getMondayDay();
+                if (pagerInfo.getType() == PagerInfo.TYPE_MONTH) {
+                    return mScheme.get(year + "-" + month);
+                } else {
+                    //周模式
                     List<Date> schemes = new ArrayList<>();
                     LocalDate monday = new LocalDate(year, month, mondayDay);
                     Date tempDate = new Date(year, month, mondayDay);
-                    for (int i = 1; i <=7; i++) {
+                    for (int i = 1; i <= 7; i++) {
                         LocalDate localDate = monday.withDayOfWeek(i);
                         tempDate.setYear(localDate.getYear());
                         tempDate.setMonth(localDate.getMonthOfYear());
@@ -59,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                     return schemes;
                 }
-                return null;
             }
         });
 
