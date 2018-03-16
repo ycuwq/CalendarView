@@ -43,7 +43,7 @@ public class CalendarView extends ViewGroup {
 //                return;
 //            }
             //切换Page后，将选择的日期变成当前页的日期。
-            CalendarItemView calendarItemView = mMonthPager.findViewWithTag(position);
+            CalendarItemView calendarItemView = getMonthCurrentItem();
             if (calendarItemView == null) {
                 return;
             }
@@ -60,10 +60,8 @@ public class CalendarView extends ViewGroup {
             calendarItemView.selectDate(new Date(date.getYear(), date.getMonth(), day));
 
             // TODO: 2018/3/14 增加Scheme的方式是否还可以优化？
-            if (mOnPageSelectedListener != null) {
-                List<Date> scheme = mOnPageSelectedListener.onPageSelected(new PagerInfo(
-                        date.getYear(), date.getMonth()));
-                calendarItemView.setScheme(scheme);
+            if (mOnPageSelectedListener != null && mCalendarType == TYPE_MONTH) {
+                selectedMonthPage();
             }
         }
 
@@ -84,7 +82,7 @@ public class CalendarView extends ViewGroup {
 //                return;
 //            }
             //切换Page后，将选择的日期变成当前页的日期。
-            CalendarItemView calendarItemView = mWeekPager.findViewWithTag(position);
+            CalendarItemView calendarItemView = getWeekCurrentItem();
 
             if (calendarItemView == null) {
                 return;
@@ -92,11 +90,8 @@ public class CalendarView extends ViewGroup {
             Date lastSelectedDate = mCalendarViewDelegate.getSelectedDate();
             //周日期可直接用第几个View跳转。week的范围是1-7，所以减一
             calendarItemView.selectDate(lastSelectedDate.getWeek() - 1);
-            if (mOnPageSelectedListener != null) {
-                Date mondayDate = calendarItemView.getDates().get(0);
-                List<Date> scheme = mOnPageSelectedListener.onPageSelected(new PagerInfo(mondayDate.getYear(),
-                        mondayDate.getMonth(), mondayDate.getDay()));
-                calendarItemView.setScheme(scheme);
+            if (mOnPageSelectedListener != null && mCalendarType == TYPE_WEEK) {
+                selectedWeekPage();
             }
 
         }
@@ -231,7 +226,7 @@ public class CalendarView extends ViewGroup {
                 mCalendarViewDelegate.getStartMonth(), 1,
                 year, month, day);
         mWeekPager.setCurrentItem(position, smoothScroll);
-        CalendarItemView calendarItemView = mWeekPager.findViewWithTag(position);
+        CalendarItemView calendarItemView = getWeekCurrentItem();
         if (calendarItemView != null) {
             calendarItemView.selectDate(new Date(year, month, day));
         }
@@ -240,19 +235,28 @@ public class CalendarView extends ViewGroup {
         int position = CalendarUtil.getMonthPosition(mCalendarViewDelegate.getStartYear(),
                 mCalendarViewDelegate.getStartMonth(), year, month);
         mMonthPager.setCurrentItem(position, smoothScroll);
-        CalendarItemView calendarItemView = mMonthPager.findViewWithTag(position);
+        CalendarItemView calendarItemView = getMonthCurrentItem();
         if (calendarItemView != null) {
             calendarItemView.selectDate(new Date(year, month, day));
         }
     }
 
     @Nullable
+    private CalendarItemView getWeekCurrentItem() {
+        return mWeekPager.findViewWithTag(mWeekPager.getCurrentItem());
+    }
+    @Nullable
+    private CalendarItemView getMonthCurrentItem() {
+        return mMonthPager.findViewWithTag(mMonthPager.getCurrentItem());
+    }
+
+    @Nullable
     CalendarItemView getCurrentCalendarItemView() {
         CalendarItemView calendarItemView;
         if (mCalendarType == TYPE_MONTH) {
-            calendarItemView = mMonthPager.findViewWithTag(mMonthPager.getCurrentItem());
+            calendarItemView = getMonthCurrentItem();
         } else {
-            calendarItemView = mWeekPager.findViewWithTag(mWeekPager.getCurrentItem());
+            calendarItemView = getWeekCurrentItem();
         }
         return calendarItemView;
     }
@@ -273,10 +277,40 @@ public class CalendarView extends ViewGroup {
         }
     }
 
+    private void selectedMonthPage() {
+        if (mOnPageSelectedListener == null) {
+            return;
+        }
+        CalendarItemView calendarItemView = getMonthCurrentItem();
+        if (calendarItemView == null) {
+            return;
+        }
+        //这里15只要是中间的任意值就可以，目的是保证获取的是当前月份的日期，不是上月或者下月。
+        Date date = calendarItemView.getDates().get(15);
+        List<Date> scheme = mOnPageSelectedListener.onPageSelected(new PagerInfo(
+                date.getYear(), date.getMonth()));
+        calendarItemView.setScheme(scheme);
+    }
+
+    private void selectedWeekPage() {
+        if (mOnPageSelectedListener == null) {
+            return;
+        }
+        CalendarItemView calendarItemView = getWeekCurrentItem();
+        if (calendarItemView == null) {
+            return;
+        }
+        Date mondayDate = calendarItemView.getDates().get(0);
+        List<Date> scheme = mOnPageSelectedListener.onPageSelected(new PagerInfo(mondayDate.getYear(),
+                mondayDate.getMonth(), mondayDate.getDay()));
+        calendarItemView.setScheme(scheme);
+    }
+
     /**
      * 设置日历模式到周模式
      */
     public void setTypeToWeek() {
+        selectedWeekPage();
         if (mCalendarType == TYPE_WEEK) {
             return;
         }
@@ -285,12 +319,15 @@ public class CalendarView extends ViewGroup {
         mMonthPager.setVisibility(GONE);
         mWeekPager.setVisibility(VISIBLE);
         scrollToSelectedDate();
+
     }
 
     /**
      * 设置日历模式到月模式
      */
     public void setTypeToMonth() {
+        selectedMonthPage();
+
         if (mCalendarType == TYPE_MONTH) {
             return;
         }
