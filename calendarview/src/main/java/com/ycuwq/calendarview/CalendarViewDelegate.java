@@ -74,7 +74,7 @@ class CalendarViewDelegate {
 
         mWeekInfoBackgroundColor = a.getColor(R.styleable.CalendarView_weekInfoBackgroundColor, Color.WHITE);
         mWeekInfoTextColor = a.getColor(R.styleable.CalendarView_weekInfoTextColor, Color.BLACK);
-        mWeekInfoTextSize = a.getColor(R.styleable.CalendarView_weekInfoTextSize,
+        mWeekInfoTextSize = a.getDimensionPixelSize(R.styleable.CalendarView_weekInfoTextSize,
                 DensityUtil.sp2px(context, 16));
         a.recycle();
     }
