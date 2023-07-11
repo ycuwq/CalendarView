@@ -1,6 +1,6 @@
 # CalendarView
 
-[![Download](https://api.bintray.com/packages/ycuwq/android/calendarview/images/download.svg)](https://bintray.com/ycuwq/android/calendarview/_latestVersion)[![MIT](https://img.shields.io/github/license/mashape/apistatus.svg)]()
+Deprecated
 
 A support contraction and expansion of the Android calendar view.
 
